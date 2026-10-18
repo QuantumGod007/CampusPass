@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   ArrowRight,
   CalendarDays,
-  CalendarPlus,
   Check,
   MapPin,
   Printer,
@@ -12,14 +11,13 @@ import {
 import { useStore } from "../../app/store";
 import { Button } from "../../components/ui/button";
 import { EmptyState } from "../../components/empty-state";
-import { useToast } from "../../components/toast";
 import { Poster } from "../events/event-card";
 import { eventDate, eventTime, readableDate } from "../../lib/utils";
-import { createEventCalendar, eventCalendarDates } from "../../lib/calendar";
+import { eventCalendarDates } from "../../lib/calendar";
+import { CalendarActions } from "./calendar-actions";
 export function BookingPass() {
   const { bookingId } = useParams();
   const { state } = useStore();
-  const toast = useToast();
   const booking = state.registrations.find((r) => r.id === bookingId);
   const event = state.events.find((e) => e.id === booking?.eventId);
   if (!booking || !event)
@@ -33,28 +31,6 @@ export function BookingPass() {
     );
   const cancelled = booking.status === "cancelled";
   const calendarDates = eventCalendarDates(event);
-  const addToCalendar = () => {
-    const calendar = createEventCalendar(event);
-    if (cancelled || !calendar) return;
-    try {
-      const url = URL.createObjectURL(
-        new Blob([calendar], { type: "text/calendar;charset=utf-8" }),
-      );
-      const link = document.createElement("a");
-      try {
-        link.href = url;
-        link.download = "campuspass-event.ics";
-        document.body.appendChild(link);
-        link.click();
-      } finally {
-        link.remove();
-        // Give the browser time to begin reading the download before cleanup.
-        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-      }
-    } catch {
-      toast("Calendar download is unavailable. Please try again.", true);
-    }
-  };
   return (
     <div className="container page pass-page">
       <Link className="back-link no-print" to="/bookings">
@@ -143,17 +119,13 @@ export function BookingPass() {
         </div>
       </article>
       <div className="pass-actions no-print">
-        <Button
-          variant="ghost"
-          onClick={addToCalendar}
-          disabled={cancelled || !calendarDates}
-          aria-describedby={
+        <CalendarActions
+          event={event}
+          disabled={cancelled}
+          unavailableDescriptionId={
             !cancelled && !calendarDates ? "calendar-unavailable" : undefined
           }
-        >
-          <CalendarPlus size={16} />
-          Add to Calendar
-        </Button>
+        />
         <Button
           variant="outline"
           onClick={() => window.print()}

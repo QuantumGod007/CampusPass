@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { createSeed } from "../data/seed";
-import { createEventCalendar, eventCalendarDates } from "../lib/calendar";
+import {
+  createEventCalendar,
+  createGoogleCalendarUrl,
+  eventCalendarDates,
+} from "../lib/calendar";
 
 const event = {
   ...createSeed(new Date("2026-10-18T00:00:00Z")).events[0],
@@ -70,6 +74,12 @@ describe("event calendar export", () => {
     expect(calendar).toContain(`DTSTART:${utcStart}\r\n`);
     expect(calendar).toContain(`DTEND:${utcEnd}\r\n`);
     expect(calendar).not.toContain("TZID");
+    const link = new URL(
+      createGoogleCalendarUrl({ ...event, start, end }, "America/New_York")!,
+    );
+    expect(link.searchParams.get("dates")).toBe(`${utcStart}/${utcEnd}`);
+    expect(link.searchParams.get("stz")).toBe("America/New_York");
+    expect(link.searchParams.get("etz")).toBe("America/New_York");
   });
 
   it("escapes all text fields and prevents injected calendar properties", () => {
@@ -140,6 +150,7 @@ describe("event calendar export", () => {
     [event.start, "9999-12-31T23:30:00-01:00"],
   ])("declines missing, invalid or unordered dates: %s → %s", (start, end) => {
     expect(eventCalendarDates({ start, end })).toBeNull();
+    expect(createGoogleCalendarUrl({ ...event, start, end })).toBeNull();
     expect(
       createEventCalendar({ ...event, start, end }, generatedAt),
     ).toBeNull();
@@ -147,5 +158,41 @@ describe("event calendar export", () => {
 
   it("declines an invalid generation timestamp without throwing", () => {
     expect(createEventCalendar(event, new Date("invalid"))).toBeNull();
+  });
+
+  it("opens Google's event editor with safely encoded, actual event details", () => {
+    const text = "Café & code + design? #1; 🎓\nBring C:\\projects = fun";
+    const link = new URL(
+      createGoogleCalendarUrl(
+        { ...event, title: text, venue: text, description: text },
+        "Asia/Kolkata",
+      )!,
+    );
+    expect(link.origin + link.pathname).toBe(
+      "https://calendar.google.com/calendar/r/eventedit",
+    );
+    expect(link.searchParams.get("action")).toBe("TEMPLATE");
+    for (const key of ["text", "details", "location"])
+      expect(link.searchParams.get(key)).toBe(text);
+    expect(link.searchParams.get("dates")).toBe(
+      "20261021T090000Z/20261022T090000Z",
+    );
+    expect(link.searchParams.get("stz")).toBe("Asia/Kolkata");
+    expect(link.searchParams.get("etz")).toBe("Asia/Kolkata");
+    expect(link.searchParams.has("auth")).toBe(false);
+  });
+
+  it("uses the device zone and falls back to UTC for unsupported zones without moving the event", () => {
+    const device = new URL(createGoogleCalendarUrl(event)!);
+    expect(device.searchParams.get("stz")).toBe(
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+    for (const zone of ["", "invalid/zone"]) {
+      const fallback = new URL(createGoogleCalendarUrl(event, zone)!);
+      expect(fallback.searchParams.get("stz")).toBe("UTC");
+      expect(fallback.searchParams.get("dates")).toBe(
+        "20261021T090000Z/20261022T090000Z",
+      );
+    }
   });
 });

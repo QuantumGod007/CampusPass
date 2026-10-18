@@ -38,6 +38,32 @@ export function eventCalendarDates(
   return dates.end > dates.start ? dates : null;
 }
 
+export function createGoogleCalendarUrl(
+  event: CalendarEvent,
+  timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone,
+): string | null {
+  const dates = eventCalendarDates(event);
+  if (!dates) return null;
+  let zone = timeZone || "UTC";
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: zone }).format();
+  } catch {
+    zone = "UTC";
+  }
+  // The model stores absolute instants, not an IANA event zone. Use the same
+  // device zone as the event UI; Z-suffixed dates prevent a second conversion.
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: event.title,
+    dates: `${dates.start}/${dates.end}`,
+    stz: zone,
+    etz: zone,
+    details: event.description,
+    location: event.venue,
+  });
+  return `https://calendar.google.com/calendar/r/eventedit?${params}`;
+}
+
 function escapeText(value: string) {
   return value
     .replace(/\\/g, "\\\\")

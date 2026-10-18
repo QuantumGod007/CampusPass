@@ -32,8 +32,45 @@ describe("booking pass calendar action", () => {
   it("offers calendar export for a confirmed booking", () => {
     setup();
     expect(
-      screen.getByRole("button", { name: "Add to Calendar" }),
-    ).toBeEnabled();
+      screen.getByRole("link", { name: "Add to Calendar" }),
+    ).toHaveAttribute("target", "_blank");
+    expect(
+      screen.getByRole("link", { name: "Add to Calendar" }),
+    ).toHaveAccessibleDescription(
+      "Opens a Google Calendar draft in a new tab. Review the event and save it there.",
+    );
+  });
+
+  it("offers the secondary ICS download and closes the disclosure with Escape", async () => {
+    const user = userEvent.setup();
+    setup();
+    const toggle = screen.getByRole("button", {
+      name: "More calendar options",
+    });
+    await user.click(toggle);
+    expect(
+      screen.getByRole("button", { name: /Apple Calendar \/ Outlook/ }),
+    ).toBeVisible();
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await user.keyboard("{Escape}");
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(toggle).toHaveFocus();
+    expect(
+      screen.queryByRole("button", { name: /Apple Calendar \/ Outlook/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("dismisses calendar options when focus or a pointer moves outside", async () => {
+    const user = userEvent.setup();
+    setup();
+    const toggle = screen.getByRole("button", {
+      name: "More calendar options",
+    });
+    await user.click(toggle);
+    await user.click(
+      screen.getByRole("heading", { name: "You’re on the list." }),
+    );
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
   });
 
   it("disables calendar export for cancelled bookings", () => {
