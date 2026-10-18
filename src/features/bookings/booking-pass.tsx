@@ -56,11 +56,11 @@ export function BookingPass() {
       <article className={`digital-pass ${cancelled ? "pass-cancelled" : ""}`}>
         <div className="pass-artwork">
           <Poster event={event} />
+        </div>
+        <div className="pass-content">
           <span className="pass-artwork-label">
             CAMPUSPASS / THE GOOD KIND OF PLANS
           </span>
-        </div>
-        <div className="pass-content">
           <div className="pass-status">
             <span
               className={`status-label ${cancelled ? "status-cancelled" : ""}`}
@@ -73,13 +73,15 @@ export function BookingPass() {
           <div className="pass-facts">
             <p>
               <CalendarDays size={15} />
-              {calendarDates
-                ? `${eventDate(event.start)} · ${eventTime(event.start)}`
-                : "Event time unavailable"}
+              <span>
+                {calendarDates
+                  ? `${eventDate(event.start)} · ${eventTime(event.start)}`
+                  : "Event time unavailable"}
+              </span>
             </p>
             <p>
               <MapPin size={15} />
-              {event.venue}
+              <span>{event.venue}</span>
             </p>
           </div>
           <div className="pass-student">

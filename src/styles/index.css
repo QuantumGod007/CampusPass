@@ -1658,6 +1658,7 @@ textarea.input {
 }
 .confirmation-heading p:last-child {
   font-size: 14px;
+  overflow-wrap: anywhere;
 }
 .digital-pass {
   border: 1px solid #dedfd5;
@@ -1670,26 +1671,29 @@ textarea.input {
 }
 .pass-artwork {
   position: relative;
-  height: 164px;
   overflow: hidden;
   background: #2449ed;
 }
 .pass-artwork .event-poster {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 40%;
+  height: auto;
+  aspect-ratio: 800 / 520;
+  object-fit: contain;
+  object-position: center;
 }
 .pass-artwork-label {
-  position: absolute;
-  left: 23px;
-  bottom: 15px;
-  background: #fff;
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 16px;
+  background: #f8f7f4;
   color: #434a3a;
   padding: 6px 10px;
   font-size: 9px;
   letter-spacing: 1px;
   border-radius: 3px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 .pass-content {
   padding: 24px 27px;
@@ -1704,6 +1708,8 @@ textarea.input {
   font-size: 30px;
   letter-spacing: -0.9px;
   margin: 12px 0 17px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 .pass-facts {
   display: flex;
@@ -1714,12 +1720,22 @@ textarea.input {
 }
 .pass-facts > p {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 5px;
+  min-width: 0;
+  line-height: 1.65;
+}
+.pass-facts > p > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.pass-facts > p > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .pass-student {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 25px;
   margin: 26px 0 23px;
 }
@@ -1727,6 +1743,8 @@ textarea.input {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .pass-student .eyebrow {
   font-size: 9px;
@@ -1762,9 +1780,14 @@ textarea.input {
 }
 .pass-id {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+.pass-id > div:first-child {
+  flex: 1;
+  min-width: 0;
 }
 .pass-id .eyebrow {
   display: block;
@@ -1773,9 +1796,11 @@ textarea.input {
   margin-bottom: 5px;
 }
 .pass-id code {
+  display: block;
   font-family: monospace;
   font-size: 11px;
   overflow-wrap: anywhere;
+  line-height: 1.6;
 }
 .ticket-bars {
   display: flex;
@@ -3138,9 +3163,6 @@ textarea.input {
     height: 49px;
     width: 49px;
   }
-  .pass-artwork {
-    height: 130px;
-  }
   .pass-content {
     padding: 22px 20px;
   }
@@ -3359,6 +3381,7 @@ textarea.input {
   @page {
     margin: 15mm;
   }
+  :root,
   body {
     background: #fff;
     -webkit-print-color-adjust: exact;
@@ -3379,11 +3402,29 @@ textarea.input {
   }
   .digital-pass {
     width: 100%;
-    max-width: 650px;
+    max-width: 600px;
     break-inside: avoid;
   }
-  .pass-artwork {
-    height: 150px;
+  .pass-content > h2 {
+    font-size: 26px;
+  }
+  .pass-content {
+    padding: 20px 24px;
+  }
+  .pass-student {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 20px 0;
+  }
+  .pass-student strong {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .pass-tear {
+    margin: 20px -24px;
+  }
+  .pass-id {
+    flex-direction: row;
+    align-items: center;
   }
   .pass-disclaimer {
     font-size: 12px;
