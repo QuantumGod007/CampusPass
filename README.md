@@ -1,5 +1,7 @@
 # CampusPass
 
+Live demo: [https://campuspass-rho.vercel.app/](https://campuspass-rho.vercel.app/)
+
 CampusPass is a React application for browsing college events and managing event registrations. Students can filter events, save them for later, register through a validated form, and view or cancel their bookings. An organizer workspace supports creating and editing events.
 
 This is a frontend demonstration. Events are fictional, and all data is stored in the current browser using localStorage. Registrations do not reserve real seats.
