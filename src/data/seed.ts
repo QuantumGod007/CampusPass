@@ -1,0 +1,243 @@
+import { addDays, set } from "date-fns";
+import type { AppState, CampusEvent, Category, PosterTheme } from "../types";
+type Seed = [
+  string,
+  string,
+  Category,
+  number,
+  number,
+  string,
+  string,
+  number,
+  number,
+  PosterTheme,
+  string,
+];
+const seeds: Seed[] = [
+  [
+    "buildfest",
+    "BuildFest Hackathon",
+    "Hackathons",
+    3,
+    9,
+    "Innovation Hub · Block A",
+    "The Coding Collective",
+    120,
+    108,
+    "build",
+    "One idea. Twenty-four hours. A room full of people who want to build something that matters. Team up with fellow makers, turn a wild idea into a working prototype, and share it with a panel of alumni founders. All skill levels are welcome; bring a laptop and your curiosity.",
+  ],
+  [
+    "design-after-dark",
+    "Design After Dark",
+    "Design",
+    4,
+    18,
+    "The Studio · Design Block",
+    "Design Society",
+    60,
+    57,
+    "design",
+    "An evening for the beautifully unfinished. Bring a side project, meet your next collaborator, and explore typography, creative coding, and visual experiments through short talks and open critiques. No perfect portfolios required.",
+  ],
+  [
+    "ai-summit",
+    "AI Innovation Summit",
+    "Technology",
+    5,
+    10,
+    "Main Auditorium",
+    "Campus AI Lab",
+    200,
+    86,
+    "ai",
+    "Look past the hype and get hands-on with artificial intelligence. Join student researchers and alumni engineers for practical sessions on responsible AI, language models, and building useful tools. Expect live demos, thoughtful debates, and plenty of time for questions.",
+  ],
+  [
+    "startup-night",
+    "Startup Pitch Night",
+    "Entrepreneurship",
+    6,
+    17,
+    "Founders Hall · Block C",
+    "Entrepreneurship Cell",
+    80,
+    42,
+    "startup",
+    "Your next big idea deserves a first audience. Hear six student teams pitch their ventures, get candid feedback from alumni founders, and find people who care about the same problems. Come to pitch, to connect, or simply to see what is being built on campus.",
+  ],
+  [
+    "code-coffee",
+    "Code & Coffee",
+    "Technology",
+    2,
+    10,
+    "The Courtyard Café",
+    "Developer Community",
+    35,
+    12,
+    "coffee",
+    "Good coffee. Better conversations. Spend a relaxed morning solving a small coding challenge, sharing what you are learning, or getting unstuck on a side project. Come solo or bring a friend. Beginners are very much part of the conversation.",
+  ],
+  [
+    "film-festival",
+    "Campus Film Festival",
+    "Cultural",
+    8,
+    16,
+    "Open Air Theatre",
+    "The Film Collective",
+    150,
+    150,
+    "film",
+    "A big screen for small, powerful stories. An afternoon of student-made short films, followed by conversations with their directors. Discover documentary, experimental cinema, and stories shot right here on campus. Subtitles are provided for all screenings.",
+  ],
+  [
+    "robotics-arena",
+    "Robotics Arena",
+    "Technology",
+    9,
+    11,
+    "Engineering Workshop",
+    "Robotics Club",
+    90,
+    51,
+    "robot",
+    "Watch student-built robots navigate, race, and solve their way through a series of challenges. Explore the engineering behind the machines, try a beginner-friendly control station, and meet the teams bringing their ideas to life. Safety briefing included.",
+  ],
+  [
+    "photo-walk",
+    "The Sunday Photo Walk",
+    "Workshops",
+    7,
+    7,
+    "North Gate · Campus Gardens",
+    "Shutter Society",
+    25,
+    9,
+    "photo",
+    "Slow down and look again. Explore the quiet corners of campus through a new lens, guided by our student photography collective. Learn to find light, frame a story, and notice the unexpected. Phone cameras are just as welcome as professional equipment.",
+  ],
+  [
+    "open-source",
+    "Open Source Weekend",
+    "Hackathons",
+    12,
+    9,
+    "Computer Lab 3 · Block B",
+    "Open Source Circle",
+    70,
+    23,
+    "source",
+    "Make your first contribution or help someone make theirs. Pick a real open source issue, pair with a mentor, and ship a small improvement over a friendly weekend sprint. We will cover Git, code review, documentation, and the art of asking good questions.",
+  ],
+  [
+    "music-stars",
+    "Music Under the Stars",
+    "Cultural",
+    10,
+    18,
+    "Amphitheatre Lawn",
+    "Campus Music Society",
+    250,
+    173,
+    "music",
+    "An unplugged evening with the campus soundtrack. Settle onto the lawn for student bands, acoustic sets, and a little room for the unexpected. Bring a picnic blanket, find your friends, and let the evening take its time. This is an alcohol-free campus event.",
+  ],
+  [
+    "product-workshop",
+    "From Idea to Interface",
+    "Workshops",
+    11,
+    14,
+    "Design Lab · Second Floor",
+    "Product People",
+    40,
+    26,
+    "product",
+    "Build something people actually want to use. Work through a real product problem, sketch your first flows, and create an interactive prototype with guidance from student designers. No previous design experience needed; bring a laptop and a problem you would like to solve.",
+  ],
+  [
+    "campus-cup",
+    "The Campus Cup",
+    "Sports",
+    14,
+    8,
+    "Central Sports Ground",
+    "Athletics Council",
+    100,
+    61,
+    "sport",
+    "A morning of friendly competition and loud sidelines. Join our mixed-team five-a-side football tournament with a warm-up session, group matches, and a final. Register individually and we will help you find a team. All experience levels are welcome.",
+  ],
+];
+export function createSeed(now = new Date()): AppState {
+  const events: CampusEvent[] = seeds.map(
+    ([
+      id,
+      title,
+      category,
+      day,
+      hour,
+      venue,
+      organizer,
+      capacity,
+      initialReservations,
+      theme,
+      description,
+    ]) => {
+      const start = set(addDays(now, day), {
+        hours: hour,
+        minutes: 0,
+        seconds: 0,
+        milliseconds: 0,
+      });
+      const end =
+        id === "buildfest"
+          ? addDays(start, 1)
+          : new Date(start.getTime() + 3 * 3600000);
+      return {
+        id,
+        title,
+        category,
+        start: start.toISOString(),
+        end: end.toISOString(),
+        venue,
+        organizer,
+        capacity,
+        initialReservations,
+        theme,
+        description,
+        createdLocally: false,
+        agenda: [
+          {
+            time: "Doors open",
+            title: "Check in, settle in, meet someone new",
+          },
+          {
+            time: "First session",
+            title:
+              id === "buildfest"
+                ? "The challenge reveal & team formation"
+                : "Welcome & a conversation with the hosts",
+          },
+          {
+            time: "Main event",
+            title:
+              id === "buildfest"
+                ? "Build, experiment & get mentor feedback"
+                : "Get involved: the main session",
+          },
+          {
+            time: "Wrap-up",
+            title:
+              id === "buildfest"
+                ? "Demo your project & celebrate the builds"
+                : "Share takeaways & make a few new connections",
+          },
+        ],
+      };
+    },
+  );
+  return { version: 1, events, registrations: [], bookmarks: [] };
+}
