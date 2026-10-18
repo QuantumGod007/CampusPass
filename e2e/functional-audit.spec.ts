@@ -5,6 +5,7 @@ import { makeRegistration } from "../src/lib/domain";
 import { student, organizerInput } from "../src/tests/fixtures";
 import { localDateInput } from "../src/lib/utils";
 import type { AppState } from "../src/types";
+import { normalizeMobile } from "../src/lib/schemas";
 
 const key = "campuspass.demo.v1";
 test.use({ timezoneId: "Asia/Kolkata" });
@@ -21,7 +22,7 @@ async function fillRegistration(page: Page) {
   for (const [label, value] of Object.entries({
     "Full name": student.fullName,
     "Email address": student.email,
-    "Mobile number": student.mobile,
+    "Mobile number": normalizeMobile(student.mobile),
     "Student PRN": student.prn,
   }))
     await page.getByLabel(label, { exact: true }).fill(value);

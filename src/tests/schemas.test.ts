@@ -28,14 +28,19 @@ describe("student validation", () => {
         .success,
     ).toBe(true);
   });
-  it.each(["987654321", "98765432101", "1234567890", "987654ABCD"])(
-    "rejects invalid Indian mobile: %s",
-    (mobile) => {
-      expect(registrationSchema.safeParse({ ...student, mobile }).success).toBe(
-        false,
-      );
-    },
-  );
+  it.each([
+    "987654321",
+    "98765432101",
+    "1234567890",
+    "5123456789",
+    "987654ABCD",
+    "+44 9876543210",
+    "+91 98765432109",
+  ])("rejects invalid Indian mobile: %s", (mobile) => {
+    expect(registrationSchema.safeParse({ ...student, mobile }).success).toBe(
+      false,
+    );
+  });
   it.each([
     "9876543210",
     "+91 98765 43210",

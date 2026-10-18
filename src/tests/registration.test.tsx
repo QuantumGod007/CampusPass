@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { StoreProvider } from "../app/store";
@@ -25,6 +25,68 @@ function setup() {
   return user;
 }
 describe("registration form interaction", () => {
+  it("limits typing to ten phone digits and twelve PRN digits without losing leading zeros", async () => {
+    const user = setup();
+    const mobile = screen.getByLabelText("Mobile number");
+    const prn = screen.getByLabelText("Student PRN");
+    await user.type(mobile, "98765abc43210999");
+    await user.type(prn, "00ab2026123456999");
+    expect(mobile).toHaveValue("9876543210");
+    expect(mobile).toHaveAttribute("maxlength", "10");
+    expect(mobile).toHaveAttribute("type", "tel");
+    expect(mobile).toHaveAttribute("inputmode", "numeric");
+    expect(prn).toHaveValue("002026123456");
+    expect(prn).toHaveAttribute("maxlength", "12");
+    expect(prn).toHaveAttribute("inputmode", "numeric");
+  });
+
+  it("sanitizes formatted pastes before applying limits and supports replacement and deletion", async () => {
+    const user = setup();
+    const mobile = screen.getByLabelText("Mobile number") as HTMLInputElement;
+    const prn = screen.getByLabelText("Student PRN") as HTMLInputElement;
+    await user.click(mobile);
+    await user.paste("+91 (98765) 43210");
+    expect(mobile).toHaveValue("9876543210");
+    mobile.setSelectionRange(2, 4);
+    await user.paste("00");
+    expect(mobile).toHaveValue("9800543210");
+    expect(mobile.selectionStart).toBe(4);
+    await user.keyboard("{Backspace}");
+    expect(mobile).toHaveValue("980543210");
+    await user.click(prn);
+    await user.paste("00 2026-123456789");
+    expect(prn).toHaveValue("002026123456");
+  });
+
+  it("normalizes autofill input and clears field-specific errors when corrected", async () => {
+    const user = setup();
+    const mobile = screen.getByLabelText("Mobile number");
+    const prn = screen.getByLabelText("Student PRN");
+    await user.type(screen.getByLabelText("Full name"), "Aarya Deshmukh");
+    fireEvent.change(mobile, { target: { value: "5123456789" } });
+    fireEvent.blur(mobile);
+    expect(
+      await screen.findByText(
+        "Enter a valid Indian mobile number starting with 6, 7, 8, or 9.",
+      ),
+    ).toBeVisible();
+    fireEvent.change(mobile, { target: { value: "+91 98765 43210" } });
+    expect(mobile).toHaveValue("9876543210");
+    await vi.waitFor(() =>
+      expect(mobile).toHaveAttribute("aria-invalid", "false"),
+    );
+    fireEvent.change(prn, { target: { value: "00202612345" } });
+    fireEvent.blur(prn);
+    expect(
+      await screen.findByText("PRN must contain exactly 12 digits."),
+    ).toBeVisible();
+    fireEvent.change(prn, { target: { value: "002026123456789" } });
+    expect(prn).toHaveValue("002026123456");
+    await vi.waitFor(() =>
+      expect(prn).toHaveAttribute("aria-invalid", "false"),
+    );
+    expect(screen.getByLabelText("Full name")).toHaveValue("Aarya Deshmukh");
+  });
   it("exposes required fields without changing the visible labels", () => {
     setup();
     for (const label of [

@@ -14,6 +14,7 @@ import {
 import { useStore } from "../../app/store";
 import {
   registrationSchema,
+  normalizeMobile,
   departments,
   years,
   type RegistrationInput,
@@ -25,6 +26,7 @@ import { Field, Input } from "../../components/ui/field";
 import { EmptyState } from "../../components/empty-state";
 import { Availability, Poster } from "../events/event-card";
 import { useToast } from "../../components/toast";
+import { numberInputProps } from "./number-input";
 export function Register() {
   const { eventId } = useParams();
   const { state, now, register: registerBooking } = useStore();
@@ -163,15 +165,15 @@ export function Register() {
             <Field
               label="Mobile number"
               name="mobile"
-              hint="10-digit Indian number; +91 is also supported."
+              hint="10-digit Indian number. You can also paste a number with +91."
               error={errors.mobile?.message}
             >
               <Input
-                {...register("mobile")}
+                {...numberInputProps(register("mobile"), 10, normalizeMobile)}
                 {...attrs("mobile", true)}
                 placeholder="e.g. 98765 43210"
                 type="tel"
-                autoComplete="tel"
+                autoComplete="tel-national"
               />
             </Field>
             <Field
@@ -181,10 +183,9 @@ export function Register() {
               error={errors.prn?.message}
             >
               <Input
-                {...register("prn")}
+                {...numberInputProps(register("prn"), 12)}
                 {...attrs("prn", true)}
                 placeholder="e.g. 002026123456"
-                inputMode="numeric"
                 autoComplete="off"
               />
             </Field>

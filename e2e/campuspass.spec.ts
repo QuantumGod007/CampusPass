@@ -32,9 +32,7 @@ async function fillStudent(page: Page, prn = "002026123456") {
   await page
     .getByLabel("Email address", { exact: true })
     .fill("aarya@example.com");
-  await page
-    .getByLabel("Mobile number", { exact: true })
-    .fill("+91 98765 43210");
+  await page.getByLabel("Mobile number", { exact: true }).fill("9876543210");
   await page.getByLabel("Student PRN", { exact: true }).fill(prn);
   await page
     .getByLabel("Department", { exact: true })
