@@ -97,7 +97,7 @@ Auth storage (`campuspass.auth.v1`) remains separate from demo storage
 boundary. PostgreSQL profiles, memberships, and RLS policies have not been
 introduced. Google OAuth and password recovery are separate milestones.
 
-## Verification and first live check
+## Verification
 
 Automated tests cover validation, redirects, UI loading/errors, queued
 submissions, confirmation messaging, session transitions, navigation, logout,
@@ -110,8 +110,31 @@ prove live Supabase authentication or delivery.
 After dashboard setup, use a real development email to test signup, receipt of
 the confirmation link, same-browser confirmation, login, refresh persistence,
 invalid credentials, and logout. Verify that demo events/bookings remain separate.
-Also test an expired or reused link. Record that evidence before claiming live
-authentication works. No live project credentials were available for this PR.
+Also test an expired or reused link. Record the observed results separately from
+the automated fixture tests.
+
+### Live development check — 19 October 2026
+
+The PR #4 implementation was checked locally against `campuspass-dev` at
+`http://127.0.0.1:5173`. The owner entered credentials directly in the application;
+no test email, password, confirmation link, or session token is recorded here.
+
+| Check                     | Observed result                                                                                                                                 |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Project connection        | Public auth settings returned HTTP 200; email signup was enabled and email confirmation was required.                                           |
+| Signup and email delivery | The owner submitted signup and confirmed receipt of the confirmation email.                                                                     |
+| Email confirmation        | The owner opened the confirmation link. An authenticated session was observed, and a later password login succeeded with confirmation required. |
+| Session persistence       | A full browser refresh retained authenticated navigation.                                                                                       |
+| Logout                    | The live session was signed out; navigation offered Sign in and no longer offered Sign out.                                                     |
+| Fresh password login      | After logout, the owner entered credentials locally and signed in again; authenticated navigation was verified on the bookings page.            |
+| Demo boundary             | Discovery remained available while signed out. The empty Upcoming booking count remained demo data; authentication created no real bookings.    |
+
+No application fix was needed. `.env.local` remains ignored and untracked.
+This check did not independently capture the confirmation callback/code exchange,
+forced token refresh, invalid credentials, or expired/reused email links against
+the live project; those paths remain covered by isolated automated tests.
+Production configuration, broader email delivery, and database authorization
+were not validated by this development check.
 
 References: [email/password auth](https://supabase.com/docs/guides/auth/passwords),
 [redirect URL configuration](https://supabase.com/docs/guides/auth/redirect-urls),

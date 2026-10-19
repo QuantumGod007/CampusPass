@@ -67,6 +67,10 @@ allowed in frontend configuration; no service-role or secret keys are bundled.
   Supabase HTTP responses, including confirmation-required and immediate-session
   signup, PKCE callbacks, safe redirects, refresh persistence, and mobile logout.
   No passwords are manually persisted; SDK errors and URL fragments are not echoed.
+- A development check against `campuspass-dev` on 19 October 2026 verified email
+  signup/delivery, confirmation followed by password login, refresh persistence,
+  and local logout. The authentication guide records the evidence and limits;
+  this does not establish production delivery or database authorization.
 - GitHub Actions runs lint, TypeScript, unit/component tests, and builds on Node
   22 and 24, followed by Chromium regressions. Focused PRs require owner approval
   before merging. No extra backend or authentication protocol is maintained.
