@@ -11,6 +11,7 @@ import { Layout } from "../components/layout";
 import { Discover } from "../features/events/discover";
 import { EmptyState } from "../components/empty-state";
 import { RouteError } from "../components/route-error";
+import { AuthProvider } from "./auth";
 function AppLayout() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -95,11 +96,13 @@ const router = createBrowserRouter([
 export function App() {
   return (
     <MotionConfig reducedMotion="user">
-      <StoreProvider>
-        <ToastProvider>
-          <RouterProvider router={router} />
-        </ToastProvider>
-      </StoreProvider>
+      <AuthProvider>
+        <StoreProvider>
+          <ToastProvider>
+            <RouterProvider router={router} />
+          </ToastProvider>
+        </StoreProvider>
+      </AuthProvider>
     </MotionConfig>
   );
 }
