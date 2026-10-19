@@ -26,9 +26,23 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    command: "npm run build && npm run preview -- --port 4173",
-    url: "http://127.0.0.1:4173",
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: [
+    {
+      command: "npm run build && npm run preview -- --port 4173",
+      url: "http://127.0.0.1:4173",
+      reuseExistingServer: !process.env.CI,
+      env: { VITE_AUTH_ENABLED: "false" },
+    },
+    {
+      command:
+        "node node_modules/vite/bin/vite.js build --outDir dist-auth-tests && node node_modules/vite/bin/vite.js preview --outDir dist-auth-tests --host 127.0.0.1 --port 4174 --strictPort",
+      url: "http://127.0.0.1:4174",
+      reuseExistingServer: !process.env.CI,
+      env: {
+        VITE_AUTH_ENABLED: "true",
+        VITE_SUPABASE_URL: "https://campuspass-auth-fixture.example.test",
+        VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_browser-fixture",
+      },
+    },
+  ],
 });

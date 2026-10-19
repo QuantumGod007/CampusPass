@@ -5,6 +5,7 @@ import { useStore } from "../app/store";
 import { Button } from "./ui/button";
 import { ConfirmDialog, Dialog } from "./ui/dialog";
 import { useToast } from "./toast";
+import { AuthNavigation } from "./auth-navigation";
 export function Wordmark() {
   return (
     <span className="wordmark">
@@ -63,6 +64,7 @@ export function Layout() {
               <span />
               Demo mode
             </button>
+            <AuthNavigation />
             <button
               className="mobile-menu icon-button"
               onClick={() => setMenu(true)}
@@ -125,6 +127,7 @@ export function Layout() {
           <NavLink to="/organizer" onClick={() => setMenu(false)}>
             Organizer studio <ArrowUpRight size={18} />
           </NavLink>
+          <AuthNavigation mobile onNavigate={() => setMenu(false)} />
         </nav>
         <p className="muted">
           <Bookmark size={16} /> Saved in this browser, just for you.
@@ -143,9 +146,9 @@ export function Layout() {
             and are not synchronized across people or devices.
           </p>
           <p>
-            No email is sent, no payment is collected, and passes have no
-            external verification. Use sample student details when trying the
-            forms.
+            Demo bookings send no email, no payment is collected, and passes
+            have no external verification. Use sample student details when
+            trying the forms.
           </p>
           <p>
             Resetting the demo clears your local bookings, bookmarks, and
