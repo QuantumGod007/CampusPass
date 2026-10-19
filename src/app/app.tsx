@@ -18,17 +18,23 @@ function AppLayout() {
     const page =
       pathname === "/"
         ? "Discover what’s happening."
-        : pathname.includes("/register")
-          ? "Save your spot"
-          : pathname.startsWith("/bookings/")
-            ? "Your event pass"
-            : pathname === "/bookings"
-              ? "My bookings"
-              : pathname === "/saved"
-                ? "Saved events"
-                : pathname === "/organizer"
-                  ? "Organizer studio"
-                  : "Your next campus story";
+        : pathname === "/login"
+          ? "Sign in"
+          : pathname === "/signup"
+            ? "Create your account"
+            : pathname === "/auth/callback"
+              ? "Confirm your account"
+              : pathname.includes("/register")
+                ? "Save your spot"
+                : pathname.startsWith("/bookings/")
+                  ? "Your event pass"
+                  : pathname === "/bookings"
+                    ? "My bookings"
+                    : pathname === "/saved"
+                      ? "Saved events"
+                      : pathname === "/organizer"
+                        ? "Organizer studio"
+                        : "Your next campus story";
     document.title = `CampusPass — ${page}`;
   }, [pathname]);
   return <Layout />;
@@ -39,6 +45,24 @@ const router = createBrowserRouter([
     errorElement: <RouteError />,
     children: [
       { path: "/", element: <Discover /> },
+      {
+        path: "/login",
+        lazy: async () => ({
+          Component: (await import("../features/auth/auth-page")).Login,
+        }),
+      },
+      {
+        path: "/signup",
+        lazy: async () => ({
+          Component: (await import("../features/auth/auth-page")).Signup,
+        }),
+      },
+      {
+        path: "/auth/callback",
+        lazy: async () => ({
+          Component: (await import("../features/auth/auth-page")).AuthCallback,
+        }),
+      },
       {
         path: "/events/:eventId",
         lazy: async () => ({

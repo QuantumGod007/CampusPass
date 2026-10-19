@@ -4,7 +4,7 @@ Live demo: [https://campuspass-rho.vercel.app/](https://campuspass-rho.vercel.ap
 
 CampusPass is a React application for browsing college events and managing event registrations. Students can filter events, save them for later, register through a validated form, and view or cancel their bookings. An organizer workspace supports creating and editing events.
 
-This is a frontend demonstration. Events are fictional, and all data is stored in the current browser using localStorage. Registrations do not reserve real seats.
+Events and bookings are a browser-local demonstration. Events are fictional, and registrations do not reserve real seats. Optional student authentication uses Supabase; account sessions remain separate from demo records.
 
 ![CampusPass event discovery](docs/screenshots/discover-desktop-preview.png)
 
@@ -48,10 +48,10 @@ Open the URL printed by Vite, normally `http://127.0.0.1:5173`.
 
 The application does not require environment variables, API keys, a database, or a backend service.
 
-Opt-in Supabase session management is available separately from demo records.
+Opt-in Supabase email/password signup, login, and session management are available separately from demo records.
 Configuration, security boundaries, and the remaining account integration steps
 are documented in [docs/authentication.md](docs/authentication.md). The default
-interface remains a demo; real accounts and bookings are not connected to it.
+event and booking interface remains a demo; signing in does not create real reservations.
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the current components and data flows.
 
 ### Available commands
@@ -165,7 +165,7 @@ The code demonstrates reusable components and props, local state, shared state t
 
 ## Current limitations
 
-- There is no authentication, backend, payment processing, email delivery, or external ticket verification. Organizer studio is an open demo interface.
+- Student login/signup requires a configured Supabase project and email delivery settings. Event bookings still have no shared backend, payments, booking emails, or external ticket verification. Organizer studio remains an open local demo and grants no database permissions.
 - Records belong to the browser profile and origin where they were created. They do not synchronize across users or devices. Use fictional student details; localStorage is not appropriate for sensitive records.
 - Tabs on the same origin receive storage updates, but concurrent writes are last-write-wins. Capacity is not a shared, transactional reservation system.
 - Clearing browser storage removes saved records. If storage is unavailable, the app displays a notice and changes last only for the current session.
