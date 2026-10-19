@@ -48,10 +48,11 @@ Open the URL printed by Vite, normally `http://127.0.0.1:5173`.
 
 The application does not require environment variables, API keys, a database, or a backend service.
 
-An opt-in Supabase authentication foundation is being developed separately from
-the demo. Configuration, security boundaries, and the remaining integration
-steps are documented in [docs/authentication.md](docs/authentication.md).
-The current interface and demo records do not use Supabase.
+Opt-in Supabase session management is available separately from demo records.
+Configuration, security boundaries, and the remaining account integration steps
+are documented in [docs/authentication.md](docs/authentication.md). The default
+interface remains a demo; real accounts and bookings are not connected to it.
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the current components and data flows.
 
 ### Available commands
 

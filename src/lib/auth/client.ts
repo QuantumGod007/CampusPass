@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { parseAuthConfig } from "./config";
+import { getAuthConfig } from "./config";
 
 let client: SupabaseClient | null | undefined;
 
@@ -10,12 +10,7 @@ let client: SupabaseClient | null | undefined;
 export function getSupabaseClient(): SupabaseClient | null {
   if (client !== undefined) return client;
 
-  const config = parseAuthConfig({
-    VITE_AUTH_ENABLED: import.meta.env.VITE_AUTH_ENABLED,
-    VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
-    VITE_SUPABASE_PUBLISHABLE_KEY: import.meta.env
-      .VITE_SUPABASE_PUBLISHABLE_KEY,
-  });
+  const config = getAuthConfig();
   if (config.mode === "demo") {
     client = null;
     return client;

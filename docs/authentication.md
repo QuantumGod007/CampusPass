@@ -1,10 +1,10 @@
 # Authentication foundation
 
 CampusPass is being upgraded incrementally to Supabase Auth and PostgreSQL.
-This first change adds configuration validation and an isolated Supabase client.
-The application still runs the existing browser-local demo. No authentication
-screens, session provider, database tables, role policies, or real bookings are
-connected yet.
+Configuration validation, the Supabase client, and an application-level session
+provider are implemented. The application still runs the existing browser-local
+demo. Authentication screens, protected account routes, database tables, role
+policies, and real bookings are subsequent milestones.
 
 ## Local configuration
 
@@ -22,9 +22,9 @@ To prepare the authentication integration:
 3. Copy the Project URL from the project's API settings to `VITE_SUPABASE_URL`.
 4. Copy a **publishable** key (`sb_publishable_...`) from API Keys to
    `VITE_SUPABASE_PUBLISHABLE_KEY`.
-5. Set `VITE_AUTH_ENABLED=true` and restart Vite when testing modules that use
-   the client. The current application does not consume the client yet, so this
-   flag alone does not add login or enable real reservations.
+5. Set `VITE_AUTH_ENABLED=true` and restart Vite to enable session restoration.
+   This does not add login screens or enable real reservations. Keep the flag
+   disabled on the public demo until the account experience is ready.
 
 The client accepts an HTTPS origin without credentials, a path, query, or
 fragment. HTTP is accepted only for `localhost`, `127.0.0.1`, and `[::1]`, for a
@@ -41,8 +41,13 @@ the setting to fix without reproducing its value.
 
 `getSupabaseClient()` initializes the SDK on first use and reuses one client for
 the page's lifetime. Importing the module does not initialize it. Demo mode
-returns `null`. Future consumers must handle both disabled configuration and
-configuration errors before rendering account-specific actions.
+returns `null`. `AuthProvider` consumes the helper and exposes disabled, loading,
+authenticated, unauthenticated, and error states through `useAuth`. Public pages
+remain usable while restoration runs or fails. Future account-specific actions
+must handle these states explicitly.
+
+The provider checks configuration before dynamically importing the client, so
+the default demo does not download the Supabase SDK.
 
 The client selects PKCE, session persistence, token refresh, and callback URL
 detection. Session state uses `campuspass.auth.v1`, separate from the existing
@@ -50,9 +55,20 @@ detection. Session state uses `campuspass.auth.v1`, separate from the existing
 demo data. Authenticated account state and demo registrations must continue to
 remain separate in subsequent changes.
 
-These SDK options prepare future flows; they are not evidence that signup,
-login, Google sign-in, logout, or account recovery works. Those flows require
-their own implementation and tests.
+The provider restores sessions through `getSession()` and subscribes to SDK auth
+events before reading the session. Newer events take precedence over old async
+results. It tracks password recovery separately until a user update, sign-out,
+or account change. `retry()` restarts restoration and replaces the subscription.
+Unmount cleanup removes listeners without disposing the shared SDK client.
+
+`signOut()` coalesces concurrent requests, reports progress, and calls the SDK
+with `scope: "local"`. It returns whether the operation completed successfully.
+SDK events may clear local credentials even if the remote request fails; the
+provider preserves that state and reports a safe error. Logout never clears
+demo records. Session tokens must not be logged or used to infer trusted roles.
+
+Signup, login, Google sign-in, and account recovery screens still require
+implementation and end-to-end verification against a configured project.
 
 ## Public keys and authorization
 
@@ -71,9 +87,8 @@ profile isolation or privilege escalation protection.
 
 ## Vercel preparation
 
-The existing deployment needs no new variables for this PR. Keep
-`VITE_AUTH_ENABLED=false` or unset. When the consuming authentication features
-are ready, configure the same three values in the intended Vercel environments
+The demo deployment needs no new variables. Keep `VITE_AUTH_ENABLED=false` or
+unset. For enabled session restoration, configure the same three values in the intended Vercel environments
 and redeploy; Vite reads them at build time. Use a separate Supabase development
 project for preview deployments and the production project only for production.
 
@@ -90,5 +105,14 @@ reuse, explicit failure, SDK options, and separation from demo records.
 They do not contact Supabase or prove database authorization. Real auth and RLS
 integration tests will require a local or isolated Supabase test environment.
 
+Session-provider tests cover restoration, auth events, stale results, retry,
+StrictMode/unmount cleanup, logout progress, and redacted errors. Additional
+tests use the real SDK with synthetic sessions and a fixture HTTP transport for
+storage restoration, refresh, logout, and SDK cleanup on remote logout failure.
+Browser tests verify that demo navigation and reset do not modify auth storage
+or make auth requests. No live Supabase credentials were used for these tests.
+
 References: [Supabase API keys](https://supabase.com/docs/guides/getting-started/api-keys)
-and [JavaScript client initialization](https://supabase.com/docs/reference/javascript/initializing).
+and [JavaScript client initialization](https://supabase.com/docs/reference/javascript/initializing),
+[auth events](https://supabase.com/docs/reference/javascript/auth-onauthstatechange),
+and [sign-out scopes](https://supabase.com/docs/reference/javascript/auth-signout).
