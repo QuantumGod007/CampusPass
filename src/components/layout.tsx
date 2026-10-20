@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { ArrowUpRight, Bookmark, Info, Menu, Ticket, X } from "lucide-react";
 import { useStore } from "../app/store";
@@ -18,6 +18,7 @@ export function Wordmark() {
 }
 export function Layout() {
   const [menu, setMenu] = useState(false);
+  const menuId = useId();
   const [info, setInfo] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const { state, notice, dismissNotice, reset } = useStore();
@@ -69,6 +70,9 @@ export function Layout() {
               className="mobile-menu icon-button"
               onClick={() => setMenu(true)}
               aria-label="Open navigation"
+              aria-haspopup="dialog"
+              aria-expanded={menu}
+              aria-controls={menu ? menuId : undefined}
             >
               <Menu size={22} />
             </button>
@@ -118,6 +122,7 @@ export function Layout() {
       </footer>
       <Dialog
         open={menu}
+        id={menuId}
         onOpenChange={setMenu}
         title="Find your next thing"
         className="mobile-nav-dialog"

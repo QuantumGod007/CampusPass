@@ -17,6 +17,12 @@ const posterOptions = [
   { value: "startup", label: "Big energy" },
   { value: "photo", label: "A new lens" },
   { value: "music", label: "Night notes" },
+  { value: "coffee", label: "Coffee & conversation" },
+  { value: "film", label: "Cinema club" },
+  { value: "robot", label: "Robot lab" },
+  { value: "source", label: "Open source" },
+  { value: "product", label: "Product thinking" },
+  { value: "sport", label: "Game day" },
 ] as const;
 export function EventForm({
   event,
@@ -70,7 +76,9 @@ export function EventForm({
       ? `organizer-${name}-error`
       : name === "description"
         ? "organizer-description-hint"
-        : undefined,
+        : name === "start" || name === "end"
+          ? "organizer-timezone-hint"
+          : undefined,
   });
   const submit = (values: ReturnType<typeof eventSchema.parse>) => {
     if (submitLock.current) return;
@@ -171,7 +179,7 @@ export function EventForm({
           <Input type="datetime-local" {...register("end")} {...attrs("end")} />
         </Field>
       </div>
-      <p className="field-hint">
+      <p className="field-hint" id="organizer-timezone-hint">
         Dates and times use your device’s local time zone.
       </p>
       <div className="form-grid">

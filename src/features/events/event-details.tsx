@@ -60,7 +60,7 @@ export function EventDetails() {
       <div className="detail-grid">
         <div className="detail-main">
           <div className="detail-cover">
-            <Poster event={event} />
+            <Poster event={event} priority />
             <BookmarkButton event={event} />
           </div>
           <div className="detail-title">

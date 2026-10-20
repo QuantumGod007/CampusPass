@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -20,6 +20,7 @@ export function Bookings() {
   const { state, now, cancel } = useStore();
   const [tab, setTab] = useState<Tab>("upcoming");
   const [query, setQuery] = useState("");
+  const searchInput = useRef<HTMLInputElement>(null);
   const [cancelId, setCancelId] = useState<string | null>(null);
   const toast = useToast();
   const bookings = useMemo(
@@ -85,6 +86,7 @@ export function Bookings() {
           </label>
           <input
             id="booking-search"
+            ref={searchInput}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Find a booking…"
@@ -93,13 +95,19 @@ export function Bookings() {
             <button
               className="icon-button"
               aria-label="Clear booking search"
-              onClick={() => setQuery("")}
+              onClick={() => {
+                setQuery("");
+                searchInput.current?.focus();
+              }}
             >
               <X size={15} />
             </button>
           )}
         </div>
       </div>
+      <p className="sr-only" role="status" aria-atomic="true">
+        {results.length} {results.length === 1 ? "booking" : "bookings"} in {tab}
+      </p>
       {results.length ? (
         <div className="booking-list">
           {results.map(({ booking, event }) => (

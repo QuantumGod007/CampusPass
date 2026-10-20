@@ -79,14 +79,22 @@ export const eventSchema = z
       .trim()
       .min(40, "Describe your event in at least 40 characters.")
       .max(5000, "Keep the description under 5,000 characters."),
-    start: z
-      .string()
+    start: z.iso
+      .datetime({
+        local: true,
+        offset: true,
+        error: "Choose a valid start date and time.",
+      })
       .refine(
         (v) => Number.isFinite(Date.parse(v)) && Date.parse(v) > Date.now(),
         "Choose a start date and time in the future.",
       ),
-    end: z
-      .string()
+    end: z.iso
+      .datetime({
+        local: true,
+        offset: true,
+        error: "Choose a valid end date and time.",
+      })
       .refine(
         (v) => Number.isFinite(Date.parse(v)),
         "Choose a valid end date and time.",

@@ -260,9 +260,9 @@ test("cancellation confirms accessibly, releases one seat, persists and permits 
     .getByRole("alertdialog")
     .getByRole("button", { name: "Cancel registration", exact: true })
     .click();
-  await expect(page.getByRole("status")).toContainText(
-    "Registration cancelled",
-  );
+  await expect(
+    page.getByRole("status").filter({ hasText: "Registration cancelled" }),
+  ).toContainText("Registration cancelled");
   await page.getByRole("button", { name: /^Cancelled/ }).click();
   await expect(page.locator(".booking-row")).toHaveCount(1);
   await page.reload();

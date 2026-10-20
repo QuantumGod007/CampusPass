@@ -25,6 +25,16 @@ function setup() {
   return user;
 }
 describe("registration form interaction", () => {
+  it("preserves selected digits when pasted text contains no number", async () => {
+    const user = setup();
+    const prn = screen.getByLabelText("Student PRN") as HTMLInputElement;
+    await user.type(prn, "002026123456");
+    prn.setSelectionRange(0, 4);
+    await user.paste("not a number");
+    expect(prn).toHaveValue("002026123456");
+    expect(prn.selectionStart).toBe(0);
+    expect(prn.selectionEnd).toBe(4);
+  });
   it("limits typing to ten phone digits and twelve PRN digits without losing leading zeros", async () => {
     const user = setup();
     const mobile = screen.getByLabelText("Mobile number");
