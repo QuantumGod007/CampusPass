@@ -32,12 +32,13 @@ export function numberInputProps(
       // can truncate a +91 prefix or formatted national number.
       event.preventDefault();
       const input = event.currentTarget;
+      const pasted = sanitize(event.clipboardData.getData("text/plain"));
+      // An unusable paste must not erase the currently selected digits.
+      if (!pasted) return;
       const start = input.selectionStart ?? input.value.length;
       const end = input.selectionEnd ?? start;
       const room = maxLength - (input.value.length - (end - start));
-      const inserted = sanitize(
-        event.clipboardData.getData("text/plain"),
-      ).slice(0, Math.max(0, room));
+      const inserted = pasted.slice(0, Math.max(0, room));
       input.value =
         input.value.slice(0, start) + inserted + input.value.slice(end);
       input.setSelectionRange(start + inserted.length, start + inserted.length);
