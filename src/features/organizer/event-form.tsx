@@ -76,7 +76,9 @@ export function EventForm({
       ? `organizer-${name}-error`
       : name === "description"
         ? "organizer-description-hint"
-        : undefined,
+        : name === "start" || name === "end"
+          ? "organizer-timezone-hint"
+          : undefined,
   });
   const submit = (values: ReturnType<typeof eventSchema.parse>) => {
     if (submitLock.current) return;
@@ -177,7 +179,7 @@ export function EventForm({
           <Input type="datetime-local" {...register("end")} {...attrs("end")} />
         </Field>
       </div>
-      <p className="field-hint">
+      <p className="field-hint" id="organizer-timezone-hint">
         Dates and times use your device’s local time zone.
       </p>
       <div className="form-grid">
