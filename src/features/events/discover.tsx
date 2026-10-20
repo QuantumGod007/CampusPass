@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowDown,
@@ -30,6 +30,7 @@ const icons = [Code2, Zap, Users, Sparkles, Trophy, ArrowUpRight, Palette];
 export function Discover() {
   const { state, now } = useStore();
   const [query, setQuery] = useState("");
+  const searchInput = useRef<HTMLInputElement>(null);
   const [selected, setSelected] = useState<Category[]>([]);
   const [date, setDate] = useState("all");
   const [sort, setSort] = useState("soonest");
@@ -205,6 +206,7 @@ export function Discover() {
             </label>
             <input
               id="event-search"
+              ref={searchInput}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search events, interests, or a little inspiration…"
@@ -212,7 +214,10 @@ export function Discover() {
             {query && (
               <button
                 className="icon-button"
-                onClick={() => setQuery("")}
+                onClick={() => {
+                  setQuery("");
+                  searchInput.current?.focus();
+                }}
                 aria-label="Clear search"
               >
                 <X size={16} />
