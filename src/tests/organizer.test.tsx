@@ -12,8 +12,28 @@ import { EventForm } from "../features/organizer/event-form";
 import { localDateInput } from "../lib/utils";
 import { STORAGE_KEY } from "../lib/storage";
 import { organizerInput } from "./fixtures";
+import { createSeed } from "../data/seed";
+import { themes } from "../types";
 
 describe("organizer form submission", () => {
+  it("offers every supported poster and preserves an existing coffee selection", () => {
+    const event = {
+      ...createSeed().events[0],
+      theme: "coffee" as const,
+      createdLocally: true,
+    };
+    render(
+      <StoreProvider>
+        <ToastProvider>
+          <EventForm event={event} onSaved={() => {}} />
+        </ToastProvider>
+      </StoreProvider>,
+    );
+    expect(screen.getAllByRole("radio")).toHaveLength(themes.length);
+    expect(
+      screen.getByRole("radio", { name: "Coffee & conversation" }),
+    ).toBeChecked();
+  });
   it("creates only one event for two queued submit events", async () => {
     const onSaved = vi.fn();
     const { container } = render(

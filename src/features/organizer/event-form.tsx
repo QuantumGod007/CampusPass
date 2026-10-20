@@ -17,6 +17,12 @@ const posterOptions = [
   { value: "startup", label: "Big energy" },
   { value: "photo", label: "A new lens" },
   { value: "music", label: "Night notes" },
+  { value: "coffee", label: "Coffee & conversation" },
+  { value: "film", label: "Cinema club" },
+  { value: "robot", label: "Robot lab" },
+  { value: "source", label: "Open source" },
+  { value: "product", label: "Product thinking" },
+  { value: "sport", label: "Game day" },
 ] as const;
 export function EventForm({
   event,
