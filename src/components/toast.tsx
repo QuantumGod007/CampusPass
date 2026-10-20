@@ -18,6 +18,7 @@ const ToastContext = createContext<(message: string, error?: boolean) => void>(
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
+  const nextId = useRef(0);
   useEffect(() => {
     const activeTimers = timers.current;
     return () => {
@@ -31,7 +32,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToasts((current) => current.filter((toast) => toast.id !== id));
   };
   const notify = (message: string, error = false) => {
-    const id = Date.now() + Math.random();
+    const id = ++nextId.current;
     setToasts((current) => [...current.slice(-2), { id, message, error }]);
     // Match the three visible notifications and release dismissed/expired timers.
     if (timers.current.size >= 3) {

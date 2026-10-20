@@ -7,10 +7,15 @@ function Notify() {
   return <button onClick={() => toast("Saved")}>Notify</button>;
 }
 
-afterEach(() => vi.useRealTimers());
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
 
 it("bounds notification timers and releases them on dismissal, expiry and unmount", () => {
   vi.useFakeTimers();
+  // Rapid notifications must stay unique even with identical clock/random values.
+  vi.spyOn(Math, "random").mockReturnValue(0);
   const { unmount } = render(
     <ToastProvider>
       <Notify />
