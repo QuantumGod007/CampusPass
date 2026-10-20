@@ -8,16 +8,19 @@ import { registrationState, seatsLeft } from "../../lib/domain";
 export function Poster({
   event,
   className = "",
+  priority = false,
 }: {
   event: CampusEvent;
   className?: string;
+  priority?: boolean;
 }) {
   return (
     <img
       className={`event-poster ${className}`}
       src={`/posters/${event.theme}.svg`}
       alt={`Original poster for ${event.title}`}
-      loading="lazy"
+      loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : "auto"}
       onError={(e) => {
         if (!e.currentTarget.src.endsWith("/posters/build.svg"))
           e.currentTarget.src = "/posters/build.svg";

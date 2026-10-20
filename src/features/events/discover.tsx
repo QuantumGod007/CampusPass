@@ -141,7 +141,7 @@ export function Discover() {
                 to={`/events/${featured.id}`}
                 aria-label={`Explore ${featured.title}`}
               >
-                <Poster event={featured} />
+                <Poster event={featured} priority />
               </Link>
               <span className="featured-label">
                 <span />
