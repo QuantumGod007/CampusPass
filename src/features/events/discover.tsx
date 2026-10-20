@@ -274,7 +274,7 @@ export function Discover() {
         </div>
         <div className="results-toolbar">
           <div className="results-info">
-            <span>
+            <span role="status" aria-atomic="true">
               {filtered.length} {filtered.length === 1 ? "event" : "events"} to
               explore
             </span>

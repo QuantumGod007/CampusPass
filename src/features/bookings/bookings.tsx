@@ -105,6 +105,9 @@ export function Bookings() {
           )}
         </div>
       </div>
+      <p className="sr-only" role="status" aria-atomic="true">
+        {results.length} {results.length === 1 ? "booking" : "bookings"} in {tab}
+      </p>
       {results.length ? (
         <div className="booking-list">
           {results.map(({ booking, event }) => (
