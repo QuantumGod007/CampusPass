@@ -72,6 +72,37 @@ describe("student validation", () => {
   });
 });
 describe("organizer validation", () => {
+  it("rejects impossible calendar dates and date-only values", () => {
+    for (const start of [
+      "2099-02-30T12:00",
+      "2099-13-01T12:00",
+      "2099-01-01",
+    ]) {
+      expect(
+        eventSchema.safeParse({
+          ...organizerInput(),
+          start,
+          end: "2099-12-31T13:00",
+        }).success,
+      ).toBe(false);
+    }
+    expect(
+      eventSchema.safeParse({
+        ...organizerInput(),
+        start: "2099-02-28T12:00",
+        end: "2099-02-30T13:00",
+      }).success,
+    ).toBe(false);
+  });
+  it("accepts local date-time values from the organizer controls", () => {
+    expect(
+      eventSchema.safeParse({
+        ...organizerInput(),
+        start: "2099-02-28T12:00",
+        end: "2099-02-28T13:00",
+      }).success,
+    ).toBe(true);
+  });
   it.each(["0", "-1", "1.2", "1e2", "", "10001"])(
     "rejects invalid capacity: %s",
     (capacity) => {
