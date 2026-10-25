@@ -78,7 +78,7 @@ async function fillProfile(page: Page) {
     .selectOption("Second year");
 }
 for (const width of [320, 390, 768, 1024, 1440]) {
-  test(`profile setup and overview at ${width}px: accessible, no overflow, screenshots`, async ({
+  test(`profile setup and overview at ${width}px: accessible, no overflow`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 1000 });
@@ -86,11 +86,13 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     await expect(
       page.getByText("Enrollment unverified", { exact: true }),
     ).toBeVisible();
-    await mkdir("test-results/profile-screenshots", { recursive: true });
-    await page.screenshot({
-      path: `test-results/profile-screenshots/setup-${width}.png`,
-      fullPage: true,
-    });
+    if (process.env.CAPTURE_SCREENSHOTS === "true")
+      await mkdir("test-results/profile-screenshots", { recursive: true });
+    if (process.env.CAPTURE_SCREENSHOTS === "true")
+      await page.screenshot({
+        path: `test-results/profile-screenshots/setup-${width}.png`,
+        fullPage: true,
+      });
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
@@ -111,10 +113,11 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     // off-viewport fixed elements when focus has scrolled the page after save.
     await page.getByRole("button", { name: "Dismiss notification" }).click();
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-    await page.screenshot({
-      path: `test-results/profile-screenshots/overview-${width}.png`,
-      fullPage: true,
-    });
+    if (process.env.CAPTURE_SCREENSHOTS === "true")
+      await page.screenshot({
+        path: `test-results/profile-screenshots/overview-${width}.png`,
+        fullPage: true,
+      });
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,

@@ -524,33 +524,42 @@ test("key pages and organizer modal meet automated WCAG checks", async ({
 test("capture desktop, mobile, form and event pass for visual review", async ({
   page,
 }) => {
+  test.skip(
+    process.env.CAPTURE_SCREENSHOTS !== "true",
+    "Screenshot capture is opt-in.",
+  );
   mkdirSync("docs/screenshots", { recursive: true });
   await page.goto("/");
   await readyForVisualCheck(page);
-  await page.screenshot({
-    path: "docs/screenshots/discover-desktop.png",
-    fullPage: true,
-  });
+  if (process.env.CAPTURE_SCREENSHOTS === "true")
+    await page.screenshot({
+      path: "docs/screenshots/discover-desktop.png",
+      fullPage: true,
+    });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.screenshot({
-    path: "docs/screenshots/discover-mobile.png",
-    fullPage: true,
-  });
+  if (process.env.CAPTURE_SCREENSHOTS === "true")
+    await page.screenshot({
+      path: "docs/screenshots/discover-mobile.png",
+      fullPage: true,
+    });
   await page.goto("/events/buildfest/register");
   await readyForVisualCheck(page);
-  await page.screenshot({
-    path: "docs/screenshots/registration-mobile.png",
-    fullPage: true,
-  });
+  if (process.env.CAPTURE_SCREENSHOTS === "true")
+    await page.screenshot({
+      path: "docs/screenshots/registration-mobile.png",
+      fullPage: true,
+    });
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.screenshot({
-    path: "docs/screenshots/registration-desktop.png",
-    fullPage: true,
-  });
+  if (process.env.CAPTURE_SCREENSHOTS === "true")
+    await page.screenshot({
+      path: "docs/screenshots/registration-desktop.png",
+      fullPage: true,
+    });
   await book(page);
   await readyForVisualCheck(page);
-  await page.screenshot({
-    path: "docs/screenshots/demo-pass.png",
-    fullPage: true,
-  });
+  if (process.env.CAPTURE_SCREENSHOTS === "true")
+    await page.screenshot({
+      path: "docs/screenshots/demo-pass.png",
+      fullPage: true,
+    });
 });

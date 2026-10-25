@@ -226,10 +226,11 @@ for (const width of [320, 390, 768, 1440]) {
     if (width === 1440 || width === 390) {
       await page.goto("/login");
       await expect(page.getByLabel("Email address")).toBeVisible();
-      await page.screenshot({
-        path: testInfo.outputPath(`campuspass-login-${width}.png`),
-        fullPage: true,
-      });
+      if (process.env.CAPTURE_SCREENSHOTS === "true")
+        await page.screenshot({
+          path: testInfo.outputPath(`campuspass-login-${width}.png`),
+          fullPage: true,
+        });
     }
   });
 }

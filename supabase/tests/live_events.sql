@@ -129,10 +129,17 @@ update public.institution_memberships set status='revoked',revoked_at=clock_time
 set local role authenticated;
 select campuspass_tests.denied(format('select public.book_campus_event(%L,gen_random_uuid())',current_setting('test.past')),'P1002','revoked student membership blocks new writes');
 select campuspass_tests.denied($q$select * from public.audit_log$q$,'42501','students cannot inspect private operator audits');
+select campuspass_tests.denied($q$select * from public.booking_requests$q$,'42501','private idempotency ledger is not exposed');
 reset role;
 delete from auth.sessions where user_id='61000000-0000-4000-8000-000000000003';
 set local role authenticated;
 select campuspass_tests.denied($q$select public.list_my_campus_bookings()$q$,'42501','revoked Auth session blocks live RPC reads');
+reset role;
+select campuspass_tests.identity(4);
+update auth.sessions set not_after=clock_timestamp()-interval '1 second' where user_id='61000000-0000-4000-8000-000000000004';
+set local role authenticated;
+select campuspass_tests.denied(format('select public.book_campus_event(%L,gen_random_uuid())',current_setting('test.past')),'42501','expired backing Auth session blocks new bookings');
+select campuspass_tests.ok((select count(*) from public.bookings)=0,'expired backing session cannot read private booking rows');
 reset role;
 set local role anon;
 select campuspass_tests.denied($q$select * from public.bookings$q$,'42501','anonymous private bookings denied');

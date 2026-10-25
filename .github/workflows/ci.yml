@@ -102,7 +102,7 @@ jobs:
         run: npm run test:integration
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Run real browser account journey with isolated Supabase
+      - name: Run real account and multi-user booking browser journeys
         run: npm run test:e2e:integration
       - name: Upload schema drift evidence (no credentials or Auth traces)
         if: failure()

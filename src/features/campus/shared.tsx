@@ -66,10 +66,16 @@ export function QueryState({
 }: {
   resource: { status: string; error: CampusError | null; reload: () => void };
 }) {
+  const auth = useAuth();
   return resource.status === "error" ? (
     <div className="account-card">
       <p role="alert">{resource.error?.message}</p>
       <Button onClick={resource.reload}>Try again</Button>
+      {resource.error?.code === "42501" && (
+        <Button variant="outline" onClick={() => void auth.signOut()}>
+          Sign out and sign in again
+        </Button>
+      )}
     </div>
   ) : (
     <Loading />
