@@ -15,6 +15,8 @@
     "db:types": "node scripts/database/generate-types.mjs",
     "db:types:check": "node scripts/database/generate-types.mjs --check",
     "test:db": "node scripts/database/policy-test.mjs",
+    "test:integration": "node scripts/database/api-test.mjs",
+    "test:e2e:integration": "playwright test --config playwright.integration.config.ts",
     "test:db:concurrency": "node scripts/database/concurrency-test.mjs"
   },
   "dependencies": {

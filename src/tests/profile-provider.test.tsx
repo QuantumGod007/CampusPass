@@ -49,16 +49,14 @@ describe("account data lifecycle independent of demo storage", () => {
   });
   it("masks previous data immediately and ignores a stale account load", async () => {
     const pending = deferred<ReturnType<typeof profileAccount>>();
-    mocks.load
-      .mockReturnValueOnce(pending.promise)
-      .mockResolvedValueOnce({
-        ...profileAccount("00000000-0000-4000-8000-000000000002", true),
-        user: {
-          id: "00000000-0000-4000-8000-000000000002",
-          email: "other@example.test",
-          emailConfirmedAt: undefined,
-        },
-      });
+    mocks.load.mockReturnValueOnce(pending.promise).mockResolvedValueOnce({
+      ...profileAccount("00000000-0000-4000-8000-000000000002", true),
+      user: {
+        id: "00000000-0000-4000-8000-000000000002",
+        email: "other@example.test",
+        emailConfirmedAt: undefined,
+      },
+    });
     const view = renderHook(useStudentProfile, { wrapper: ProfileProvider });
     await waitFor(() => expect(mocks.load).toHaveBeenCalledTimes(1));
     const session = authSession("00000000-0000-4000-8000-000000000002");
@@ -72,6 +70,34 @@ describe("account data lifecycle independent of demo storage", () => {
     );
     await act(async () => pending.resolve(profileAccount(undefined, true)));
     expect(view.result.current.account?.user.email).toBe("other@example.test");
+  });
+  it("aborts a pending save when the account changes and never publishes its stale result", async () => {
+    const pending = deferred<ReturnType<typeof profileAccount>>();
+    mocks.save.mockReturnValueOnce(pending.promise);
+    const view = renderHook(useStudentProfile, { wrapper: ProfileProvider });
+    await waitFor(() => expect(view.result.current.status).toBe("ready"));
+    let saving!: ReturnType<typeof view.result.current.save>;
+    act(() => {
+      saving = view.result.current.save(profileValues);
+    });
+    const rejected = expect(saving).rejects.toMatchObject({
+      name: "AbortError",
+    });
+    await waitFor(() => expect(mocks.save).toHaveBeenCalledTimes(1));
+    const signal = mocks.save.mock.calls[0][2] as AbortSignal;
+    const session = authSession("00000000-0000-4000-8000-000000000002");
+    mocks.load.mockResolvedValueOnce(profileAccount(session.user.id));
+    auth = { ...auth, session, user: session.user };
+    view.rerender();
+    expect(signal.aborted).toBe(true);
+    expect(view.result.current.account).toBeNull();
+    await waitFor(() =>
+      expect(view.result.current.account?.user.id).toBe(session.user.id),
+    );
+    await act(async () => pending.resolve(profileAccount(undefined, true)));
+    await rejected;
+    expect(view.result.current.account?.user.id).toBe(session.user.id);
+    expect(view.result.current.isSaving).toBe(false);
   });
   it("clears account data on sign-out without touching demo records", async () => {
     localStorage.setItem("campuspass.demo.v1", "fictional-demo-data");
