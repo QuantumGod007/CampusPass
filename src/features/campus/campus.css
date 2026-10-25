@@ -1,0 +1,112 @@
+.campus-boundary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-muted);
+  border-bottom: 1px solid var(--color-line);
+  padding-bottom: 20px;
+  margin-bottom: 35px;
+}
+.campus-boundary strong {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--color-blue);
+}
+.campus-boundary a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.campus-toolbar {
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.campus-toolbar .search-box {
+  flex: 1;
+  min-width: 0;
+}
+.campus-loading {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 140px;
+}
+.campus-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.campus-description {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.campus-view .detail-layout {
+  align-items: start;
+}
+.campus-view .detail-layout > div {
+  min-width: 0;
+}
+.campus-view .detail-layout > div > .event-poster {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.campus-view .registration-card > .button {
+  margin-top: 16px;
+}
+.campus-view .card-content h2 {
+  font-size: 20px;
+  line-height: 1.4;
+  margin: 12px 0;
+}
+.campus-view .card-content h2 a {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.campus-reference {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.campus-reference code {
+  font-size: 12px;
+}
+.campus-view .table-actions {
+  flex-wrap: wrap;
+}
+.campus-view .table-event strong {
+  overflow-wrap: anywhere;
+}
+.campus-view .attendee-list code {
+  font-size: 10px;
+}
+@media (max-width: 600px) {
+  .campus-view .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .campus-toolbar .search-box {
+    flex-basis: 100%;
+  }
+  .campus-view .page-heading h1 {
+    font-size: 34px;
+  }
+  .campus-view .organizer-heading {
+    gap: 16px;
+  }
+  .campus-booking {
+    min-width: 0;
+  }
+  .campus-reference code {
+    font-size: 10px;
+  }
+  .campus-view .tabs {
+    flex-wrap: wrap;
+  }
+}

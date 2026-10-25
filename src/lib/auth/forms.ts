@@ -38,7 +38,7 @@ export type SignupValues = z.infer<typeof signupSchema>;
 export function safeAuthRedirect(value: string | null | undefined): string {
   if (
     !value ||
-    !/^\/(?:account\/profile|saved|bookings(?:\/[A-Za-z0-9_-]+)?|events\/[A-Za-z0-9_-]+(?:\/register)?)?$/.test(
+    !/^\/(?:campus(?:\/(?:organizer|bookings(?:\/[0-9a-f-]{36})?|events\/[0-9a-f-]{36}))?|account\/profile|saved|bookings(?:\/[A-Za-z0-9_-]+)?|events\/[A-Za-z0-9_-]+(?:\/register)?)?$/.test(
       value,
     )
   )

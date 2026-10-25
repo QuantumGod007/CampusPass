@@ -28,7 +28,21 @@ export function Layout() {
     window.scrollTo({ top: 0, behavior: "instant" });
     document.getElementById("main-content")?.focus({ preventScroll: true });
   }, [location.pathname]);
-  const navigation = (
+  const live =
+    location.pathname === "/campus" || location.pathname.startsWith("/campus/");
+  const navigation = live ? (
+    <>
+      <NavLink to="/campus" end onClick={() => setMenu(false)}>
+        Campus events
+      </NavLink>
+      <NavLink to="/campus/bookings" onClick={() => setMenu(false)}>
+        My campus bookings
+      </NavLink>
+      <Link to="/" onClick={() => setMenu(false)}>
+        Local demo
+      </Link>
+    </>
+  ) : (
     <>
       <NavLink to="/" end onClick={() => setMenu(false)}>
         Discover
@@ -58,12 +72,15 @@ export function Layout() {
             {navigation}
           </nav>
           <div className="header-actions">
-            <NavLink className="studio-link" to="/organizer">
+            <NavLink
+              className="studio-link"
+              to={live ? "/campus/organizer" : "/organizer"}
+            >
               Organizer studio <ArrowUpRight size={15} />
             </NavLink>
             <button className="demo-pill" onClick={() => setInfo(true)}>
               <span />
-              Demo mode
+              {live ? "Account events" : "Demo mode"}
             </button>
             <AuthNavigation />
             <button
@@ -129,7 +146,10 @@ export function Layout() {
       >
         <nav aria-label="Mobile navigation">
           {navigation}
-          <NavLink to="/organizer" onClick={() => setMenu(false)}>
+          <NavLink
+            to={live ? "/campus/organizer" : "/organizer"}
+            onClick={() => setMenu(false)}
+          >
             Organizer studio <ArrowUpRight size={18} />
           </NavLink>
           <AuthNavigation mobile onNavigate={() => setMenu(false)} />
@@ -141,14 +161,29 @@ export function Layout() {
       <Dialog
         open={info}
         onOpenChange={setInfo}
-        title="A real experience. A local demo."
-        description="CampusPass is a frontend React demonstration."
+        title={
+          live
+            ? "Shared institution events"
+            : "A real experience. A local demo."
+        }
+        description={
+          live
+            ? "Events and bookings in the campus area use authenticated PostgreSQL records."
+            : "The original CampusPass event collection is a browser-local demonstration."
+        }
       >
         <div className="prose">
+          {live && (
+            <p>
+              Campus events are published by provisioned institution organizers.
+              Your real bookings are separate from the local demo. A reference
+              does not verify admission.
+            </p>
+          )}
           <p>
-            Events are fictional. Bookings, saved events, and organizer changes
-            stay in this browser’s local storage. They are not real reservations
-            and are not synchronized across people or devices.
+            Demo events are fictional. Bookings, saved events, and organizer
+            changes stay in this browser’s local storage. They are not real
+            reservations and are not synchronized across people or devices.
           </p>
           <p>
             Demo bookings send no email, no payment is collected, and passes

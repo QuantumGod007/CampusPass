@@ -56,6 +56,9 @@ export function AuthNavigation({
     return (
       <div className="auth-mobile-account">
         <span>{auth.user.email}</span>
+        <Link to="/campus" onClick={onNavigate}>
+          Campus events
+        </Link>
         <Link
           className="auth-profile-entry"
           to="/account/profile"
@@ -100,6 +103,11 @@ export function AuthNavigation({
             {profile?.status === "ready" && !profile.account?.profile
               ? "Set up student profile"
               : "View student profile"}
+          </Link>
+        </Button>
+        <Button asChild variant="outline" className="auth-profile-entry">
+          <Link to="/campus" onClick={() => setOpen(false)}>
+            Campus events
           </Link>
         </Button>
         {auth.error && (
