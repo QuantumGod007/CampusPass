@@ -1,0 +1,238 @@
+.account-page {
+  max-width: 1180px;
+}
+.account-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 26px;
+  align-items: start;
+}
+.account-card {
+  background: #fff;
+  border: 1px solid var(--border, #dedfd5);
+  border-radius: 12px;
+  padding: 30px;
+  min-width: 0;
+}
+.account-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.account-section-heading h2 {
+  font-size: 24px;
+  margin: 5px 0;
+  letter-spacing: -0.6px;
+}
+.account-section-heading .eyebrow {
+  font-size: 9px;
+  margin: 0;
+}
+.account-symbol {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  background: #eef1fa;
+  color: #294dc9;
+  border: 1px solid #dce1ee;
+  border-radius: 12px;
+}
+.account-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #665332;
+  background: #f5efdf;
+  border: 1px solid #e5dac2;
+  padding: 6px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.account-section-heading > .account-status {
+  margin-left: auto;
+}
+.account-status.complete {
+  background: #eaf0e2;
+  color: #35552d;
+  border-color: #cfdcc6;
+}
+.account-email {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #f6f6f0;
+  border: 1px solid #e8e8df;
+  border-radius: 8px;
+  padding: 19px;
+  margin-bottom: 25px;
+  overflow-wrap: anywhere;
+}
+.account-email strong {
+  font-size: 15px;
+}
+.account-email .eyebrow {
+  font-size: 9px;
+}
+.profile-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 25px;
+  margin: 25px 0;
+}
+.profile-details div {
+  min-width: 0;
+}
+.profile-details dt {
+  font-size: 11px;
+  color: #646c63;
+  margin-bottom: 8px;
+}
+.profile-details dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.account-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.account-form-intro {
+  font-size: 13px;
+  line-height: 1.8;
+  margin-bottom: 25px;
+}
+.account-form-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+.account-form .form-alert {
+  margin-top: 20px;
+}
+.account-persistence {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 11px;
+  line-height: 1.8;
+  color: #646c63;
+  margin-top: 22px;
+}
+.account-persistence svg {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.account-membership {
+  padding: 25px;
+  background: #f2f3e8;
+  border: 1px solid #dde0d1;
+  border-radius: 12px;
+  min-width: 0;
+}
+.account-membership > svg {
+  color: #527442;
+  margin-bottom: 18px;
+}
+.account-membership > .eyebrow {
+  font-size: 9px;
+}
+.account-membership h2 {
+  font-size: 23px;
+  line-height: 1.35;
+  letter-spacing: -0.4px;
+  overflow-wrap: anywhere;
+}
+.account-membership p {
+  font-size: 12px;
+  line-height: 1.9;
+}
+.account-demo-boundary {
+  border-top: 1px solid #d9dece;
+  padding-top: 20px;
+  margin-top: 22px;
+}
+.account-demo-boundary strong {
+  font-size: 13px;
+}
+.account-demo-boundary .text-link {
+  font-size: 11px;
+}
+.account-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  min-height: 180px;
+  color: #576451;
+}
+.account-loading > svg {
+  animation: account-spin 1.2s linear infinite;
+}
+@keyframes account-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 900px) {
+  .account-grid {
+    grid-template-columns: 1fr;
+  }
+  .account-membership {
+    padding: 25px;
+  }
+  .account-card {
+    padding: 27px;
+  }
+}
+@media (max-width: 600px) {
+  .account-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 500px) {
+  .account-card {
+    padding: 22px 17px;
+  }
+  .account-section-heading {
+    gap: 12px;
+  }
+  .account-section-heading h2 {
+    font-size: 21px;
+  }
+  .account-section-heading > .account-status {
+    margin-left: 0;
+  }
+  .account-email {
+    padding: 16px;
+  }
+  .profile-details {
+    grid-template-columns: 1fr;
+    gap: 19px;
+  }
+  .account-form-actions .button {
+    width: 100%;
+  }
+  .account-membership {
+    padding: 23px 18px;
+  }
+  .account-persistence {
+    font-size: 10px;
+  }
+  .account-page .page-heading h1 {
+    font-size: 34px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .account-loading > svg {
+    animation: none;
+  }
+}

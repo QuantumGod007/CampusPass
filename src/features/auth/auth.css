@@ -319,3 +319,12 @@
     animation: none;
   }
 }
+
+.auth-profile-entry {
+  display: block;
+  margin: 18px 0 22px;
+}
+.auth-mobile-account .auth-profile-entry {
+  margin: 0;
+  font-size: 16px;
+}
