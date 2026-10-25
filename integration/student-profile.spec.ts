@@ -21,6 +21,7 @@ test("REAL Supabase: confirmed signup, database save, refresh, logout, fresh log
   const pool = databasePool();
   const api = apiClient();
   let userId: string | undefined;
+  let otherEmail: string | undefined;
   const contexts = [];
   try {
     await page.goto("/signup");
@@ -103,7 +104,7 @@ test("REAL Supabase: confirmed signup, database save, refresh, logout, fresh log
       otherPage.getByText("Updated Browser Student", { exact: true }),
     ).toBeVisible();
     // A distinct real user cannot read the first student's profile. API suite separately confirms this user's email.
-    const otherEmail = `phase5-private-${randomUUID()}@example.test`;
+    otherEmail = `phase5-private-${randomUUID()}@example.test`;
     const other = await api.auth.signUp({ email: otherEmail, password });
     expect(other.error).toBeNull();
     const link = await confirmationLink(otherEmail);
@@ -120,10 +121,10 @@ test("REAL Supabase: confirmed signup, database save, refresh, logout, fresh log
     await Promise.all(contexts.map((context) => context.close()));
     await api.auth.dispose();
     // Match test-only addresses even if signup failed before assigning userId.
-    await pool.query(
-      "delete from auth.users where email=$1 or (email like 'phase5-private-%@example.test')",
-      [email],
-    );
+    await pool.query("delete from auth.users where email=$1 or email=$2", [
+      email,
+      otherEmail || null,
+    ]);
     await pool.end();
   }
 });

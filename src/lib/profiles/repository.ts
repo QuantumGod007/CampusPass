@@ -1,4 +1,4 @@
-import type { SupabaseClient, User } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../../types/database";
 import { accountSchema, profileSchema, type ProfileValues } from "./schema";
 import { getSupabaseClient } from "../auth/client";
@@ -124,7 +124,6 @@ export function createProfileRepository(client: SupabaseClient<Database>) {
 export type ProfileAccount = Awaited<
   ReturnType<ReturnType<typeof createProfileRepository>["load"]>
 >;
-export type VerifiedStudent = Pick<User, "id" | "email">;
 export function getProfileRepository() {
   const client = getSupabaseClient();
   if (!client)
