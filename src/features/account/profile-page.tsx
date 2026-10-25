@@ -297,14 +297,13 @@ function AccountWorkspace({ account }: { account: ProfileAccount }) {
           {membership?.expires_at
             ? `Membership expiry: ${new Date(membership.expires_at).toLocaleString()}. `
             : ""}
-          Organizer and administrator privileges are unavailable in this phase.
+          Organizer access requires a trusted operator grant. Administrator
+          access is unavailable.
         </p>
         <div className="account-demo-boundary">
           <strong>Your demo stays a demo.</strong>
           <p>
-            Saved events, bookings, passes, and Organizer studio still use this
-            browser’s fictional demonstration data. They are separate from this
-            profile.
+            The original demo’s saved events, bookings, passes, and Organizer studio use fictional browser-local data. Campus events and registrations are stored separately.
           </p>
           <Link className="text-link" to="/bookings">
             View demo bookings
