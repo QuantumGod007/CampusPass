@@ -151,7 +151,7 @@ Browser automation currently targets Chromium. Safari, Firefox, physical mobile 
 
 1. Import the GitHub repository into Vercel.
 2. Select the Vite framework preset. The included `vercel.json` specifies `npm run build`, the `dist` output directory, and SPA rewrites for React Router.
-3. Deploy without application environment variables.
+3. For the event demo, deploy without application environment variables. To enable real student accounts, first apply the reviewed database migrations and configure the public Supabase variables described in [database setup](docs/database.md) and [authentication setup](docs/authentication.md).
 4. Check a nested route such as `/events/buildfest` directly and refresh it to verify routing on the deployed host.
 
 To inspect the build locally:
@@ -161,7 +161,7 @@ npm run build
 npm run preview
 ```
 
-No live deployment URL is recorded in this repository.
+The existing demo URL is linked at the top of this README. This Phase 5 PR does not migrate the hosted database or deploy the account changes automatically.
 
 ## Practical Demonstration Guide
 
