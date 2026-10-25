@@ -107,6 +107,10 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     await expect(
       page.getByRole("heading", { name: "A little more you." }),
     ).toBeFocused();
+    // Capture from the document origin: full-page Chromium captures can expose
+    // off-viewport fixed elements when focus has scrolled the page after save.
+    await page.getByRole("button", { name: "Dismiss notification" }).click();
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await page.screenshot({
       path: `test-results/profile-screenshots/overview-${width}.png`,
       fullPage: true,
