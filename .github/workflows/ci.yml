@@ -72,3 +72,46 @@ jobs:
             test-results/
           retention-days: 7
           if-no-files-found: ignore
+
+  database:
+    name: PostgreSQL policies and real Supabase journey
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: "true"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Start disposable Supabase (migrations applied on fresh database)
+        run: npx supabase start > /tmp/campuspass-supabase-start.log 2>&1
+      - name: Export only isolated API and database test settings
+        run: node scripts/database/export-test-env.mjs
+      - name: Check generated types against actual migrated PostgreSQL
+        run: npm run db:types:check
+      - name: Run real SQL policy and concurrency assertions
+        run: |
+          npm run test:db
+          npm run test:db:concurrency
+      - name: Run real Auth, SMTP confirmation, PostgREST and privacy tests
+        run: npm run test:integration
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run real browser account journey with isolated Supabase
+        run: npm run test:e2e:integration
+      - name: Upload schema drift evidence (no credentials or Auth traces)
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: generated-database-types
+          path: .test-artifacts/database.generated.ts
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: Stop isolated stack
+        if: always()
+        run: npx supabase stop --no-backup

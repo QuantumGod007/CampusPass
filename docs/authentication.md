@@ -86,7 +86,7 @@ validation is not a secret scanner and cannot undo accidental exposure.
   Failed, expired, or reused links show safe guidance, without echoing provider
   details, and remove one-time callback parameters from the address bar.
 - Login and immediate-session signup accept `next` only for existing student
-  event, saved-event, and booking paths. External URLs, encoded paths, query/hash
+  event, saved-event, booking paths and the exact `/account/profile` route. External URLs, encoded paths, query/hash
   payloads, auth loops, and organizer destinations fall back to `/`.
 - Authenticated navigation uses the existing provider's `signOut()` with local
   scope. Failed server confirmation is reported honestly, including cases where
@@ -94,8 +94,21 @@ validation is not a secret scanner and cannot undo accidental exposure.
 
 Auth storage (`campuspass.auth.v1`) remains separate from demo storage
 (`campuspass.demo.v1`). User/session metadata is not a role or authorization
-boundary. PostgreSQL profiles, memberships, and RLS policies have not been
-introduced. Google OAuth and password recovery are separate milestones.
+boundary. PostgreSQL profiles and memberships now use explicit RLS and
+server-validated session ownership. See [database setup](database.md) before
+enabling the account UI on a configured project. Google OAuth and password
+recovery remain separate milestones.
+
+## Student profiles
+
+After sign-in, the account menu links to `/account/profile`. The page retrieves
+identity/email from `auth.getUser(token)`, loads the own database profile and
+shows setup when absent. It never infers enrollment from email or PRN. Profile
+saves contain only display name, PRN, department and academic year. PostgreSQL
+derives the owner and institution, and checks that the JWT still has a backing
+Auth session. Failed/revoked sessions show actionable guidance; pending requests
+are discarded on account switch/sign-out. Profile details are not written to
+localStorage. Demo reset and sign-out do not delete the database profile.
 
 ## Verification
 
@@ -106,6 +119,12 @@ separate auth-enabled preview on port 4174. All requests to the latter's fixture
 Supabase origin are intercepted; no emails or external accounts are created.
 These tests exercise the real SDK, including PKCE code exchange, but do not
 prove live Supabase authentication or delivery.
+
+The additional isolated CI suite uses genuine Supabase Auth, local Mailpit
+confirmation, PostgREST and migrated PostgreSQL. It checks signup/PKCE callback,
+profile save/edit, refresh, logout/login, a fresh browser context and a separate
+user. This proves the local stack workflow, not production email delivery or a
+hosted deployment. See [Phase 5 results](phase-5-verification.md).
 
 After dashboard setup, use a real development email to test signup, receipt of
 the confirmation link, same-browser confirmation, login, refresh persistence,

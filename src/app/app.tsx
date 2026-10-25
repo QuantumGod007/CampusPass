@@ -11,6 +11,7 @@ import { Layout } from "../components/layout";
 import { Discover } from "../features/events/discover";
 import { EmptyState } from "../components/empty-state";
 import { RouteError } from "../components/route-error";
+import { ProfileProvider } from "./profile";
 import { AuthProvider } from "./auth";
 function AppLayout() {
   const { pathname } = useLocation();
@@ -22,19 +23,21 @@ function AppLayout() {
           ? "Sign in"
           : pathname === "/signup"
             ? "Create your account"
-            : pathname === "/auth/callback"
-              ? "Confirm your account"
-              : pathname.includes("/register")
-                ? "Save your spot"
-                : pathname.startsWith("/bookings/")
-                  ? "Your event pass"
-                  : pathname === "/bookings"
-                    ? "My bookings"
-                    : pathname === "/saved"
-                      ? "Saved events"
-                      : pathname === "/organizer"
-                        ? "Organizer studio"
-                        : "Your next campus story";
+            : pathname === "/account/profile"
+              ? "Your student profile"
+              : pathname === "/auth/callback"
+                ? "Confirm your account"
+                : pathname.includes("/register")
+                  ? "Save your spot"
+                  : pathname.startsWith("/bookings/")
+                    ? "Your event pass"
+                    : pathname === "/bookings"
+                      ? "My bookings"
+                      : pathname === "/saved"
+                        ? "Saved events"
+                        : pathname === "/organizer"
+                          ? "Organizer studio"
+                          : "Your next campus story";
     document.title = `CampusPass — ${page}`;
   }, [pathname]);
   return <Layout />;
@@ -45,6 +48,13 @@ const router = createBrowserRouter([
     errorElement: <RouteError />,
     children: [
       { path: "/", element: <Discover /> },
+      {
+        path: "/account/profile",
+        lazy: async () => ({
+          Component: (await import("../features/account/profile-page"))
+            .ProfilePage,
+        }),
+      },
       {
         path: "/login",
         lazy: async () => ({
@@ -121,11 +131,13 @@ export function App() {
   return (
     <MotionConfig reducedMotion="user">
       <AuthProvider>
-        <StoreProvider>
-          <ToastProvider>
-            <RouterProvider router={router} />
-          </ToastProvider>
-        </StoreProvider>
+        <ProfileProvider>
+          <StoreProvider>
+            <ToastProvider>
+              <RouterProvider router={router} />
+            </ToastProvider>
+          </StoreProvider>
+        </ProfileProvider>
       </AuthProvider>
     </MotionConfig>
   );

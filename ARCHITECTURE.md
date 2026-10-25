@@ -15,6 +15,8 @@ incremental migration to Supabase Auth and PostgreSQL.
 | `src/lib/auth/forms.ts`                         | Credential validation, restricted return destinations, safe SDK error copy   |
 | `src/features/auth/`                            | Login, signup, confirmation callback, and scoped authentication styles       |
 | `src/components/auth-navigation.tsx`            | Enabled-only sign-in entry, account dialog, and mobile logout                |
+| `src/app/profile.tsx`, `src/lib/profiles/`      | Real profile lifecycle, verified-token repository, validation                |
+| `supabase/migrations/`, `src/types/database.ts` | Versioned schema/RLS and generated PostgreSQL types                          |
 | `src/app/store.tsx`                             | Existing demo events, bookings, bookmarks, and browser-tab synchronization   |
 | `src/lib/domain.ts`, `schemas.ts`, `storage.ts` | Demo booking rules, Zod validation, persisted-data checks                    |
 | `src/features/`                                 | Discovery, event details, registration, bookings, passes, organizer demo     |
@@ -40,16 +42,30 @@ incremental migration to Supabase Auth and PostgreSQL.
 
 ## Database and authorization
 
-No application PostgreSQL tables or RLS migrations have been introduced yet.
-Profiles, institution-scoped PRNs, memberships, and trusted role assignment are
-planned for a separate reviewed migration. Protected profile/account routes,
-Google OAuth, and password recovery remain subsequent work. Current login/signup
-requests contain no role metadata and confer no real organizer permissions.
+Phase 5 adds `institutions`, `institution_memberships` and `student_profiles`
+through a versioned migration. All have RLS enabled and anonymous access denied.
+Own-only SELECT policies use a server session helper; ordinary clients cannot
+write table rows directly. Two hardened RPCs load the own account and atomically
+save four permitted personal fields. No RPC accepts ownership, role or institution
+claims. The helper checks the backing `auth.sessions` record as well as JWT
+identity/expiry, so revocation takes effect before token expiry.
 
-Session data is a UI state source, not an authorization decision. User metadata
-must never grant organizer or administrator privileges. Real database access
-will require server-enforced PostgreSQL/RLS policies. Only publishable keys are
-allowed in frontend configuration; no service-role or secret keys are bundled.
+`src/lib/profiles/repository.ts` uses the existing typed singleton client. It
+validates the exact token with Auth, pins RPC authorization to that token and
+normalizes errors. `src/app/profile.tsx` owns account load/mutation states and
+aborts/masks stale loads and saves on identity changes. It never reads demo
+storage. The lazy `/account/profile` page provides onboarding, overview and edit
+states within the existing layout and design system. Auth-disabled mode keeps
+the full demo and shows an honest unavailable account state.
+
+Institution-scoped text PRNs are unique only after trusted active membership
+provisioning. Unprovisioned profiles remain personal and unverified. A constraint
+keeps organizer/admin roles unavailable until a reviewed administrative pathway
+exists. No account metadata can authorize the Organizer demo. Real bookings,
+event publishing, seat inventory and QR verification remain future work.
+
+Details, lock ordering, expiry semantics, migration/type generation commands and
+policy names are documented in [database foundation](docs/database.md).
 
 ## Operational decisions and verification
 
@@ -72,7 +88,9 @@ allowed in frontend configuration; no service-role or secret keys are bundled.
   and local logout. The authentication guide records the evidence and limits;
   this does not establish production delivery or database authorization.
 - GitHub Actions runs lint, TypeScript, unit/component tests, and builds on Node
-  22 and 24, followed by Chromium regressions. Focused PRs require owner approval
+  22 and 24, followed by Chromium regressions. A separate disposable Supabase
+  job applies migrations, checks generated types, executes SQL policies and
+  concurrent writes, and verifies real Auth/API and fresh-browser profile journeys. Focused PRs require owner approval
   before merging. No extra backend or authentication protocol is maintained.
 
 Configuration details: [authentication setup](docs/authentication.md).

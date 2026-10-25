@@ -4,7 +4,7 @@ Live demo: [https://campuspass-rho.vercel.app/](https://campuspass-rho.vercel.ap
 
 CampusPass is a React application for browsing college events and managing event registrations. Students can filter events, save them for later, register through a validated form, and view or cancel their bookings. An organizer workspace supports creating and editing events.
 
-Events and bookings are a browser-local demonstration. Events are fictional, and registrations do not reserve real seats. Optional student authentication uses Supabase; account sessions remain separate from demo records.
+Events and bookings are a browser-local demonstration. Events are fictional, and registrations do not reserve real seats. Optional student authentication and private student profiles use Supabase Auth/PostgreSQL; real account records remain separate from demo data.
 
 ![CampusPass event discovery](docs/screenshots/discover-desktop-preview.png)
 
@@ -22,16 +22,25 @@ Events and bookings are a browser-local demonstration. Events are fictional, and
 
 The initial dataset contains 12 events across seven categories. Dates are generated relative to the first launch and then persisted. It includes fully booked events and events with limited availability.
 
+### Real student accounts (optional)
+
+With Supabase configured and the versioned migration applied, `/account/profile`
+supports first-time setup, authorized profile editing, confirmed Auth email,
+server persistence and restoration from another signed-in browser. PRNs preserve
+leading zeros; institution association requires trusted membership provisioning.
+A self-declared PRN never verifies enrollment, and organizer/admin roles remain
+unavailable. See [database setup and security](docs/database.md).
+
 ## Technology
 
-| Area | Tools |
-| --- | --- |
-| Application | React 19, TypeScript, Vite, React Router |
-| UI | Tailwind CSS, Radix UI primitives, Lucide React, Motion for React |
-| Forms | React Hook Form, Zod |
-| Dates | date-fns |
-| State and storage | React Context, useReducer, localStorage |
-| Testing | Vitest, React Testing Library, Playwright, axe-core |
+| Area              | Tools                                                                       |
+| ----------------- | --------------------------------------------------------------------------- |
+| Application       | React 19, TypeScript, Vite, React Router                                    |
+| UI                | Tailwind CSS, Radix UI primitives, Lucide React, Motion for React           |
+| Forms             | React Hook Form, Zod                                                        |
+| Dates             | date-fns                                                                    |
+| State and storage | React Context; browser-local demo; Supabase PostgreSQL for private profiles |
+| Testing           | Vitest, React Testing Library, Playwright, axe-core                         |
 
 ## Local setup
 
@@ -46,41 +55,45 @@ npm run dev
 
 Open the URL printed by Vite, normally `http://127.0.0.1:5173`.
 
-The application does not require environment variables, API keys, a database, or a backend service.
+The default event demo does not require environment variables, API keys, a database, or a backend service.
 
 Opt-in Supabase email/password signup, login, and session management are available separately from demo records.
-Configuration, security boundaries, and the remaining account integration steps
+Configuration, security boundaries, and email setup
 are documented in [docs/authentication.md](docs/authentication.md). The default
 event and booking interface remains a demo; signing in does not create real reservations.
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the current components and data flows.
 
 ### Available commands
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start the development server |
-| `npm run typecheck` | Check TypeScript types |
-| `npm run lint` | Run ESLint |
-| `npm test` | Run unit and component tests |
-| `npm run test:watch` | Run unit tests in watch mode |
-| `npm run test:e2e` | Run browser tests against the production build |
-| `npm run build` | Type-check and build into `dist/` |
-| `npm run preview` | Serve the production build locally |
+| Command                                   | Purpose                                                             |
+| ----------------------------------------- | ------------------------------------------------------------------- |
+| `npm run dev`                             | Start the development server                                        |
+| `npm run typecheck`                       | Check TypeScript types                                              |
+| `npm run lint`                            | Run ESLint                                                          |
+| `npm test`                                | Run unit and component tests                                        |
+| `npm run test:watch`                      | Run unit tests in watch mode                                        |
+| `npm run test:e2e`                        | Run browser tests against the production build                      |
+| `npm run build`                           | Type-check and build into `dist/`                                   |
+| `npm run preview`                         | Serve the production build locally                                  |
+| `npm run db:types` / `db:types:check`     | Generate/check types from the migrated isolated PostgreSQL database |
+| `npm run test:db` / `test:db:concurrency` | Run real SQL policies and concurrent-write tests                    |
+| `npm run test:integration`                | Real isolated Supabase Auth, SMTP confirmation and API tests        |
+| `npm run test:e2e:integration`            | Real Supabase browser account journey                               |
 
 ## Registration and validation
 
 React Hook Form manages the registration form, with Zod schemas defining the validation rules. Errors appear next to the relevant fields, the first invalid field receives focus on submission, and entered values are retained.
 
-| Field | Validation |
-| --- | --- |
-| Full name | Trim surrounding whitespace; require at least two letters |
-| Email | Require a valid email address; no college-domain restriction |
+| Field                | Validation                                                                                                      |
+| -------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Full name            | Trim surrounding whitespace; require at least two letters                                                       |
+| Email                | Require a valid email address; no college-domain restriction                                                    |
 | Indian mobile number | Require ten digits starting with 6–9; accept spaces, hyphens, parentheses, and an optional `+91` or `91` prefix |
-| Student PRN | Require exactly 12 digits; store as a string to preserve leading zeros |
-| Department | Select a value from the predefined list |
-| Academic year | Select first, second, third, or fourth year |
-| Note | Optional; up to 500 characters after trimming |
-| Consent | Must be checked |
+| Student PRN          | Require exactly 12 digits; store as a string to preserve leading zeros                                          |
+| Department           | Select a value from the predefined list                                                                         |
+| Academic year        | Select first, second, third, or fourth year                                                                     |
+| Note                 | Optional; up to 500 characters after trimming                                                                   |
+| Consent              | Must be checked                                                                                                 |
 
 Before saving a registration, the application checks that the event exists, has not started, has available capacity, and has no active registration for the same PRN. The form guards against repeated submissions. A successful submission creates a booking reference and opens the event pass.
 
@@ -138,7 +151,7 @@ Browser automation currently targets Chromium. Safari, Firefox, physical mobile 
 
 1. Import the GitHub repository into Vercel.
 2. Select the Vite framework preset. The included `vercel.json` specifies `npm run build`, the `dist` output directory, and SPA rewrites for React Router.
-3. Deploy without application environment variables.
+3. For the event demo, deploy without application environment variables. To enable real student accounts, first apply the reviewed database migrations and configure the public Supabase variables described in [database setup](docs/database.md) and [authentication setup](docs/authentication.md).
 4. Check a nested route such as `/events/buildfest` directly and refresh it to verify routing on the deployed host.
 
 To inspect the build locally:
@@ -148,7 +161,7 @@ npm run build
 npm run preview
 ```
 
-No live deployment URL is recorded in this repository.
+The existing demo URL is linked at the top of this README. This Phase 5 PR does not migrate the hosted database or deploy the account changes automatically.
 
 ## Practical Demonstration Guide
 
@@ -163,11 +176,14 @@ A short walkthrough for reviewing the application:
 
 The code demonstrates reusable components and props, local state, shared state through Context and useReducer, event handlers, effects for browser storage, conditional rendering, and client-side form validation.
 
+See [Phase 5 verification](docs/phase-5-verification.md) for account screenshots,
+real versus mocked test coverage, and database CI evidence.
+
 ## Current limitations
 
 - Student login/signup requires a configured Supabase project and email delivery settings. Event bookings still have no shared backend, payments, booking emails, or external ticket verification. Organizer studio remains an open local demo and grants no database permissions.
-- Records belong to the browser profile and origin where they were created. They do not synchronize across users or devices. Use fictional student details; localStorage is not appropriate for sensitive records.
+- Demo records belong to the browser profile and origin where they were created; they do not synchronize across users or devices. Use fictional details in demo forms. Real student profiles persist separately in PostgreSQL with own-only access.
 - Tabs on the same origin receive storage updates, but concurrent writes are last-write-wins. Capacity is not a shared, transactional reservation system.
-- Clearing browser storage removes saved records. If storage is unavailable, the app displays a notice and changes last only for the current session.
+- Clearing browser storage removes demo records (not PostgreSQL profiles). If storage is unavailable, the app displays a notice and changes last only for the current session.
 - Persisted events eventually become past events. Reset the demo to generate new upcoming dates.
 - Poster themes use fixed artwork and lettering. Custom event titles appear separately in the interface and pass. The pass barcode is decorative and cannot verify entry.

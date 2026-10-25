@@ -34,6 +34,8 @@ async function mockAuth(page: Page, signupSession = false) {
           };
         } else data = session;
       } else if (url.pathname.endsWith("/user")) data = session.user;
+      else if (url.pathname.endsWith("/rpc/get_student_account"))
+        data = { user_id: session.user.id, profile: null, membership: null };
       else if (url.pathname.endsWith("/logout"))
         return route.fulfill({ status: 204, headers });
       else {

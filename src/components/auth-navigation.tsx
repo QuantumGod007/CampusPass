@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { CircleUserRound, LogOut } from "lucide-react";
+import { useOptionalStudentProfile } from "../app/profile";
 import { useAuth } from "../app/auth";
 import { safeAuthRedirect } from "../lib/auth/forms";
 import { useToast } from "./toast";
@@ -16,6 +17,7 @@ export function AuthNavigation({
   onNavigate?: () => void;
 }) {
   const auth = useAuth();
+  const profile = useOptionalStudentProfile();
   const location = useLocation();
   const toast = useToast();
   const [open, setOpen] = useState(false);
@@ -54,6 +56,13 @@ export function AuthNavigation({
     return (
       <div className="auth-mobile-account">
         <span>{auth.user.email}</span>
+        <Link
+          className="auth-profile-entry"
+          to="/account/profile"
+          onClick={onNavigate}
+        >
+          Student profile
+        </Link>
         <button
           onClick={() => {
             void logout();
@@ -86,6 +95,13 @@ export function AuthNavigation({
           Your account and local demo bookings are separate. Signing out keeps
           your saved demo events and bookings in this browser.
         </p>
+        <Button asChild className="auth-profile-entry" variant="outline">
+          <Link to="/account/profile" onClick={() => setOpen(false)}>
+            {profile?.status === "ready" && !profile.account?.profile
+              ? "Set up student profile"
+              : "View student profile"}
+          </Link>
+        </Button>
         {auth.error && (
           <p role="alert" className="form-alert">
             {auth.error}

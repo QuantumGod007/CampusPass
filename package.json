@@ -11,7 +11,13 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "db:types": "node scripts/database/generate-types.mjs",
+    "db:types:check": "node scripts/database/generate-types.mjs --check",
+    "test:db": "node scripts/database/policy-test.mjs",
+    "test:integration": "node scripts/database/api-test.mjs",
+    "test:e2e:integration": "playwright test --config playwright.integration.config.ts",
+    "test:db:concurrency": "node scripts/database/concurrency-test.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
@@ -37,6 +43,7 @@
     "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.64.1",
+    "@supabase/typegen": "0.2.2",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
@@ -49,7 +56,9 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.13.0",
     "jsdom": "^30.1.3",
+    "pg": "8.23.1",
     "prettier": "^3.9.10",
+    "supabase": "2.122.0",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.0",
     "typescript-eslint": "^8.71.2",
