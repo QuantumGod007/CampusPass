@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../../types/database";
 import { accountSchema, profileSchema, type ProfileValues } from "./schema";
+import { verifiedIdentity, SessionChangedError } from "../auth/identity";
 import { getSupabaseClient } from "../auth/client";
 
 export class ProfileError extends Error {
@@ -13,6 +14,8 @@ export class ProfileError extends Error {
 }
 export function profileError(error: unknown): ProfileError {
   if (error instanceof ProfileError) return error;
+  if (error instanceof SessionChangedError)
+    return new ProfileError("session", error.message);
   const code =
     error && typeof error === "object" && "code" in error
       ? error.code
@@ -38,39 +41,17 @@ export function profileError(error: unknown): ProfileError {
   );
 }
 export function createProfileRepository(client: SupabaseClient<Database>) {
-  async function identity(expectedUserId: string, signal?: AbortSignal) {
-    signal?.throwIfAborted();
-    // getSession supplies a transport snapshot, never proof of identity. Validate
-    // that exact JWT through Auth, then pin the RPC header to it. Account switches
-    // cannot make an in-flight A form write through B's newly installed session.
-    const {
-      data: { session },
-      error: sessionError,
-    } = await client.auth.getSession();
-    if (sessionError || !session)
-      throw new ProfileError(
-        "session",
-        "Sign in again to access your student profile.",
-      );
-    const {
-      data: { user },
-      error,
-    } = await client.auth.getUser(session.access_token);
-    signal?.throwIfAborted();
-    if (error || !user || user.id !== expectedUserId)
-      throw new ProfileError(
-        "session",
-        "Your account changed or expired. Sign in again to continue.",
-      );
-    return { user, token: session.access_token };
-  }
   async function request(
     expectedUserId: string,
     values?: ProfileValues,
     signal?: AbortSignal,
   ) {
     try {
-      const { user, token } = await identity(expectedUserId, signal);
+      const { user, token } = await verifiedIdentity(
+        client,
+        expectedUserId,
+        signal,
+      );
       const query = values
         ? client.rpc("save_student_profile", {
             p_display_name: values.displayName,
