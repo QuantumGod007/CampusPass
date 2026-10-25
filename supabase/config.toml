@@ -1,0 +1,53 @@
+# Disposable Phase 5 development/test stack; never link this project to production.
+project_id = "campuspass-phase5-isolated"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.seed]
+enabled = false
+
+[studio]
+enabled = false
+[realtime]
+enabled = false
+[storage]
+enabled = false
+[analytics]
+enabled = false
+[edge_runtime]
+enabled = false
+
+[local_smtp]
+enabled = true
+port = 54324
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:4175"
+additional_redirect_urls = ["http://127.0.0.1:4175/auth/callback"]
+jwt_expiry = 3600
+enable_signup = true
+enable_anonymous_sign_ins = false
+minimum_password_length = 8
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+double_confirm_changes = true
+max_frequency = "1s"
+
+# Only the isolated stack uses these higher test limits; hosted settings are unchanged.
+[auth.rate_limit]
+email_sent = 200
+sign_in_sign_ups = 200
+token_verifications = 200
