@@ -23,6 +23,12 @@ import {
   type LiveEventFormValues,
   type LiveEvent,
 } from "./schema";
+import {
+  analyticsSchema,
+  reportHeaderSchema,
+  reportPageSchema,
+  participationSchema,
+} from "./reporting-schema";
 const messages: Record<string, string> = {
   "42501": "Your account session is no longer valid. Sign in again.",
   PGRST301: "Your session has expired. Sign in again.",
@@ -41,6 +47,12 @@ const messages: Record<string, string> = {
   P1010: "This event changed in another session. Refresh before saving again.",
   P1011: "Capacity cannot be lower than the confirmed registration count.",
   P1012: "This event state cannot be changed.",
+  P1041:
+    "This report expired. Generate a new report; no partial file was downloaded.",
+  P1042:
+    "A complete CSV is limited to 50,000 booking records. No partial report was exported.",
+  P1043:
+    "Ten reports are already active for your account. Retry after their ten-minute expiry.",
   P1032:
     "You already have a confirmed registration or an active waiting entry.",
   P1034: "This event’s waitlist has reached its 100-person limit.",
@@ -131,6 +143,65 @@ export function createCampusRepository(client: SupabaseClient<Database>) {
     };
   }
   return {
+    analytics: (owner: string, eventId: string, signal?: AbortSignal) =>
+      request(
+        owner,
+        client.rpc("get_campus_event_analytics", {
+          p_event_id: z.uuid().parse(eventId),
+        }),
+        analyticsSchema.refine((value) => value.event.id === eventId),
+        signal,
+      ),
+    startReport: (
+      owner: string,
+      eventId: string,
+      requestId: string,
+      signal?: AbortSignal,
+    ) =>
+      request(
+        owner,
+        client.rpc("start_campus_event_report", {
+          p_event_id: z.uuid().parse(eventId),
+          p_request_id: z.uuid().parse(requestId),
+        }),
+        reportHeaderSchema.refine(
+          (value) =>
+            value.event_id === eventId && value.analytics.event.id === eventId,
+        ),
+        signal,
+      ),
+    reportPage: (
+      owner: string,
+      eventId: string,
+      snapshotId: string,
+      after = 0,
+      signal?: AbortSignal,
+    ) =>
+      request(
+        owner,
+        client.rpc("get_campus_event_report_page", {
+          p_snapshot_id: z.uuid().parse(snapshotId),
+          p_after: z.number().int().min(0).max(50000).parse(after),
+        }),
+        reportPageSchema.refine(
+          (value) =>
+            value.event_id === eventId && value.snapshot_id === snapshotId,
+        ),
+        signal,
+      ),
+    participation: (owner: string, bookingId: string, signal?: AbortSignal) =>
+      request(
+        owner,
+        client.rpc("get_campus_participation", {
+          p_booking_id: z.uuid().parse(bookingId),
+        }),
+        participationSchema.refine(
+          (value) =>
+            value.booking_id === bookingId &&
+            (!value.record || value.record.booking_id === bookingId),
+        ),
+        signal,
+      ),
     waitlist: (owner: string, eventId: string, signal?: AbortSignal) =>
       request(
         owner,
