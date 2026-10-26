@@ -87,6 +87,8 @@ describe("authentication return destinations", () => {
     "/bookings",
     "/bookings/CP-123",
     "/campus/notifications",
+    "/campus/organizer/91000000-0000-4000-8000-000000000001/analytics",
+    "/campus/bookings/92000000-0000-4000-8000-000000000001/participation",
     "/events/buildfest",
     "/events/buildfest/register",
   ])("retains a supported local destination: %s", (target) => {
@@ -111,6 +113,8 @@ describe("authentication return destinations", () => {
     "/events/../login",
     "/saved?next=https://evil.example",
     "/campus/notifications/other",
+    "/campus/organizer/91000000-0000-4000-8000-000000000001/analytics?next=https://evil.example",
+    "/campus/bookings/92000000-0000-4000-8000-000000000001/participation/other",
     "/campus/notifications?next=https://evil.example",
     "/saved#fragment",
     "/saved\n",

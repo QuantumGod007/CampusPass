@@ -152,6 +152,12 @@ Apply `202610270002_waitlists_notifications.sql` after the admission migration; 
 
 `/campus/notifications` contains transactional join, promotion, booking/event cancellation and schedule-change messages, with account-only read receipts and 50-item cursor pages. The inbox/badge refresh after actions, navigation and explicit refresh; there is no background delivery, SMS, email or push. Existing database/concurrency, API and browser integration commands include the waitlist journey. No hosted migration or deployment runs automatically.
 
+### Analytics, complete reports and participation
+
+Apply `202610270003_analytics_participation.sql` after the waitlist migration. The owning organizer’s **View analytics** shows a locked, server-time view of current registrations versus historical cancellations, promotions and admissions. **Generate attendee report** freezes a private snapshot; CSV download verifies every 200-row page before creating a file. Reports expire after ten minutes, allow ten active snapshots per organizer and refuse more than 50,000 booking records rather than exporting a partial report. Expired owned snapshots are pruned when generating another report. CSV fields are quoted and formula prefixes neutralized; only display names, references and event/admission details are exported.
+
+Real booking history links to **Attendance & participation**. PostgreSQL issues one immutable acknowledgement only for a currently eligible, confirmed, checked-in booking after the published event ends. Current access is rechecked on every read; snapshot names/event details stay unchanged after issuance. The browser prints/saves PDF without a document service. This acknowledges a recorded credential check-in, not physical identity, academic credit or an officially verified certificate. Existing SQL/concurrency, API and multi-account browser commands include reporting coverage. No new environment variables/dependencies or hosted changes.
+
 ## Registration and validation
 
 React Hook Form manages the registration form, with Zod schemas defining the validation rules. Errors appear next to the relevant fields, the first invalid field receives focus on submission, and entered values are retained.
