@@ -10,6 +10,67 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admission_rate_limits: {
+        Row: {
+          actor_id: string;
+          attempts: number;
+          minute: string;
+          operation: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          actor_id: string;
+          attempts: number;
+          minute: string;
+          operation: string;
+        };
+        Update: {
+          actor_id?: string;
+          attempts?: number;
+          minute?: string;
+          operation?: string;
+        };
+        Relationships: [];
+      };
+      admission_tokens: {
+        Row: {
+          booking_id: string;
+          consumed_at: string | null;
+          event_id: string;
+          event_revision: number;
+          expires_at: string;
+          issued_at: string;
+          token_hash: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          booking_id: string;
+          consumed_at?: string | null;
+          event_id: string;
+          event_revision: number;
+          expires_at: string;
+          issued_at: string;
+          token_hash: string;
+        };
+        Update: {
+          booking_id?: string;
+          consumed_at?: string | null;
+          event_id?: string;
+          event_revision?: number;
+          expires_at?: string;
+          issued_at?: string;
+          token_hash?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "admission_tokens_booking_id_event_id_fkey";
+            columns: ["booking_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "bookings";
+            referencedColumns: ["id", "event_id"];
+          },
+        ];
+      };
       audit_log: {
         Row: {
           action: string;
@@ -134,6 +195,39 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "events";
             referencedColumns: ["id"];
+          },
+        ];
+      };
+      event_checkins: {
+        Row: {
+          booking_id: string;
+          checked_in_at: string;
+          event_id: string;
+          id: string;
+          organizer_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          booking_id: string;
+          checked_in_at?: string;
+          event_id: string;
+          id?: string;
+          organizer_id: string;
+        };
+        Update: {
+          booking_id?: string;
+          checked_in_at?: string;
+          event_id?: string;
+          id?: string;
+          organizer_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_checkins_booking_id_event_id_fkey";
+            columns: ["booking_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "bookings";
+            referencedColumns: ["id", "event_id"];
           },
         ];
       };
@@ -337,6 +431,10 @@ export type Database = {
         Returns: Json;
       };
       cancel_campus_booking: { Args: { p_booking_id: string }; Returns: Json };
+      check_in_campus_pass: {
+        Args: { p_event_id: string; p_token: string };
+        Returns: Json;
+      };
       create_campus_event: {
         Args: {
           p_capacity: number;
@@ -351,8 +449,14 @@ export type Database = {
         Returns: Json;
       };
       get_campus_access: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_campus_checkins: {
+        Args: { p_before?: string; p_event_id: string };
+        Returns: Json;
+      };
       get_campus_event: { Args: { p_event_id: string }; Returns: Json };
+      get_campus_pass: { Args: { p_booking_id: string }; Returns: Json };
       get_student_account: { Args: Record<PropertyKey, never>; Returns: Json };
+      issue_campus_pass: { Args: { p_booking_id: string }; Returns: Json };
       list_campus_attendees: { Args: { p_event_id: string }; Returns: Json };
       list_campus_events: { Args: { p_owned?: boolean }; Returns: Json };
       list_my_campus_bookings: {
