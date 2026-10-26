@@ -139,6 +139,7 @@ export type IssuedPass = Extract<
 export type ScanResult = z.infer<typeof scanResultSchema>;
 export const waitlistEntrySchema = z
   .object({
+    booking_status: z.enum(["confirmed", "cancelled"]).nullable(),
     id: z.uuid(),
     event_id: z.uuid(),
     status: z.enum(["waiting", "promoted", "withdrawn", "expired"]),

@@ -149,7 +149,7 @@ create function campuspass_private.waitlist_summary(p_entry uuid) returns jsonb
 language sql stable security definer set search_path='' as $$
  select jsonb_build_object('id',w.id,'event_id',w.event_id,'status',
  case when w.status='waiting' and (e.status<>'published' or e.starts_at<=clock_timestamp()) then 'expired' else w.status end,
- 'booking_id',w.booking_id,'created_at',w.created_at,'updated_at',w.updated_at,
+ 'booking_id',w.booking_id,'booking_status',(select status from public.bookings where id=w.booking_id),'created_at',w.created_at,'updated_at',w.updated_at,
  'reason',case when w.status='waiting' and e.status='cancelled' then 'event_cancelled'
  when w.status='waiting' and e.starts_at<=clock_timestamp() then 'registration_closed' else w.reason end,
  'position',case when w.status='waiting' and e.status='published' and e.starts_at>clock_timestamp() then

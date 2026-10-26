@@ -240,6 +240,21 @@ try {
       .status,
     "promoted",
   );
+  const againEvent = await event(),
+    againOriginal = await book(againEvent);
+  await join(againEvent, b);
+  await join(againEvent, c);
+  ok(await cancel(againOriginal, a));
+  const firstPromotion = ok(await wait(againEvent, b)).entry;
+  ok(
+    await b.client.rpc("cancel_campus_booking", {
+      p_booking_id: firstPromotion.booking_id,
+    }),
+  );
+  equal(ok(await wait(againEvent, b)).entry.booking_status, "cancelled");
+  const againEntry = ok(await join(againEvent, b)).entry;
+  equal(againEntry.status, "waiting");
+  yes(againEntry.id !== firstPromotion.id);
   const e2 = await event();
   await book(e2);
   const k2 = randomUUID();

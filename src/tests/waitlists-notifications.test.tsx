@@ -36,6 +36,7 @@ const entry = {
   status: "waiting",
   position: 1,
   booking_id: null,
+  booking_status: null,
   reason: null,
   created_at: "2026-10-26T10:00:00Z",
   updated_at: "2026-10-26T10:00:00Z",
@@ -144,6 +145,7 @@ describe("waitlist and inbox UI with mocked repositories; database security test
         status: "promoted",
         position: null,
         booking_id: booking,
+        booking_status: "confirmed",
       },
       waiting_count: 1,
     });
@@ -152,6 +154,26 @@ describe("waitlist and inbox UI with mocked repositories; database security test
       await screen.findByRole("link", { name: "Open promoted booking" }),
     ).toHaveAttribute("href", `/campus/bookings/${booking}`);
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+  });
+  it("allows joining again after a promoted booking was cancelled", async () => {
+    mocks.waitlist.mockResolvedValue({
+      entry: {
+        ...entry,
+        status: "promoted",
+        position: null,
+        booking_id: "72000000-0000-4000-8000-000000000002",
+        booking_status: "cancelled",
+      },
+      waiting_count: 1,
+    });
+    const user = userEvent.setup();
+    waiting();
+    await screen.findByRole("checkbox");
+    expect(
+      screen.queryByRole("link", { name: "Open promoted booking" }),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole("checkbox"));
+    expect(screen.getByRole("button", { name: "Join waitlist" })).toBeEnabled();
   });
   it("reports a seat becoming available rather than pretending to join", async () => {
     const user = userEvent.setup();

@@ -100,14 +100,12 @@ test("REAL waitlist → cancellation → FIFO promotion → notification → per
         exact: true,
       }),
     ).toBeVisible();
-    const notice = b
-      .getByRole("listitem")
-      .filter({
-        has: b.getByRole("heading", {
-          name: "Your registration is confirmed",
-          exact: true,
-        }),
-      });
+    const notice = b.getByRole("listitem").filter({
+      has: b.getByRole("heading", {
+        name: "Your registration is confirmed",
+        exact: true,
+      }),
+    });
     await notice.getByRole("button", { name: /Mark as read/ }).click();
     await expect(notice.getByText("READ", { exact: true })).toBeVisible();
     await expect(
@@ -214,6 +212,34 @@ test("REAL waitlist → cancellation → FIFO promotion → notification → per
     await expect(
       restored.getByText("Checked in", { exact: true }),
     ).toBeVisible();
+    // Cancelling a promoted booking preserves history and permits a fresh join.
+    await restored
+      .getByRole("button", { name: "Cancel registration", exact: true })
+      .click();
+    await restored
+      .getByRole("button", { name: "Confirm cancellation", exact: true })
+      .click();
+    await expect(restored.locator(".status-label")).toHaveText("CANCELLED");
+    await restored.goto(eventPath);
+    await restored
+      .getByRole("checkbox", { name: /I agree that a free seat/ })
+      .check();
+    await restored
+      .getByRole("button", { name: "Join waitlist", exact: true })
+      .click();
+    await expect(
+      restored
+        .getByRole("status")
+        .filter({ hasText: "You are waiting · Position 1 of 1" }),
+    ).toBeVisible();
+    expect(
+      (
+        await f.pool.query(
+          "select count(*)::int n from public.event_waitlist where event_id=$1 and student_id=$2 and status='waiting'",
+          [f.event.id, f.studentB.id],
+        )
+      ).rows[0].n,
+    ).toBe(1);
   } finally {
     await Promise.all(contexts.map((x) => x.close()));
     await f.dispose();

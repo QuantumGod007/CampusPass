@@ -108,7 +108,8 @@ function Waitlist({
                 Leave waitlist
               </Button>
             </>
-          ) : entry?.status === "promoted" ? (
+          ) : entry?.status === "promoted" &&
+            entry.booking_status === "confirmed" ? (
             <>
               <p role="status">Promoted · Your registration was confirmed.</p>
               <Button asChild>
@@ -121,7 +122,7 @@ function Waitlist({
             <>
               <p>
                 {entry
-                  ? `Previous entry: ${entry.status}${entry.reason ? ` (${entry.reason.replaceAll("_", " ")})` : ""}.`
+                  ? `Previous entry: ${entry.status}${entry.reason ? ` (${entry.reason.replaceAll("_", " ")})` : entry.booking_status === "cancelled" ? " (booking cancelled)" : ""}.`
                   : "You are not waiting for this event."}
               </p>
               {event.registration_open && event.available_seats === 0 && (
