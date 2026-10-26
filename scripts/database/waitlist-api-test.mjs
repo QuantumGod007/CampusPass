@@ -362,7 +362,7 @@ try {
     1,
   );
   await pool.query(
-    "select campuspass_private.notify_campus($1,$2,null,'schedule_changed','pagination-fixture:'||$2::text||':'||n::text) from generate_series(1,60) n",
+    "select campuspass_private.notify_campus($1::uuid,$2::uuid,null,'schedule_changed','pagination-fixture:'||($2::uuid)::text||':'||n::text) from generate_series(1,60) n",
     [c.id, e.id],
   );
   // Bounded inbox pages use numeric IDs, with no leaked recipient or private data.
