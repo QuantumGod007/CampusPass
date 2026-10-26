@@ -22,27 +22,16 @@ export function CampusNotificationLink() {
     window.addEventListener("campus-inbox-changed", reload);
     return () => window.removeEventListener("campus-inbox-changed", reload);
   }, [reload]);
+  const label =
+    resource.status === "ready"
+      ? `Notifications, ${resource.data!.unread_count} unread`
+      : resource.status === "error"
+        ? "Notifications unavailable. Open inbox to retry."
+        : "Notifications loading";
   return (
-    <Link
-      className="campus-inbox-link"
-      to="/campus/notifications"
-      aria-label={
-        resource.status === "ready"
-          ? `Notifications, ${resource.data!.unread_count} unread`
-          : resource.status === "error"
-            ? "Notifications unavailable. Open inbox to retry."
-            : "Notifications loading"
-      }
-    >
-      <Bell size={16} />
-      <span>
-        Inbox{" "}
-        {resource.status === "ready"
-          ? `(${resource.data!.unread_count} unread)`
-          : resource.status === "error"
-            ? "(unavailable)"
-            : "…"}
-      </span>
+    <Link className="campus-inbox-link" to="/campus/notifications">
+      <Bell size={16} aria-hidden="true" />
+      <span>{label}</span>
     </Link>
   );
 }
@@ -88,7 +77,9 @@ function Inbox() {
         <p role="status">
           {resource.status === "ready"
             ? `${resource.data!.unread_count} unread notifications`
-            : "Loading your inbox…"}
+            : resource.status === "error"
+              ? "Unread count unavailable."
+              : "Loading your inbox…"}
         </p>
         <Button
           variant="outline"

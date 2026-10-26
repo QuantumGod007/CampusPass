@@ -281,7 +281,9 @@ describe("waitlist and inbox UI with mocked repositories; database security test
         <CampusNotificationLink />
       </MemoryRouter>,
     );
-    await screen.findByRole("link", { name: "Notifications, 1 unread" });
+    expect(
+      await screen.findByRole("link", { name: "Notifications, 1 unread" }),
+    ).toHaveTextContent("Notifications, 1 unread");
     mocks.notifications.mockResolvedValue({
       items: [],
       unread_count: 0,
