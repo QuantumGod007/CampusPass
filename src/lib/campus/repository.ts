@@ -4,6 +4,11 @@ import type { Database } from "../../types/database";
 import { getSupabaseClient } from "../auth/client";
 import { verifiedIdentity, SessionChangedError } from "../auth/identity";
 import {
+  admissionTokenSchema,
+  passStatusSchema,
+  issuedPassSchema,
+  scanResultSchema,
+  checkinsSchema,
   accessSchema,
   liveEventSchema,
   bookingSchema,
@@ -31,6 +36,9 @@ const messages: Record<string, string> = {
   P1010: "This event changed in another session. Refresh before saving again.",
   P1011: "Capacity cannot be lower than the confirmed registration count.",
   P1012: "This event state cannot be changed.",
+  P1020: "Entry opens 30 minutes before the event and closes at its end.",
+  P1021: "This booking has already been checked in. Refresh admission status.",
+  P1022: "Wait three seconds before regenerating your pass.",
   "23514": "Check the event details, dates and capacity.",
   "23502": "Complete all required event details.",
   "22P02": "Choose valid event options and dates.",
@@ -115,6 +123,52 @@ export function createCampusRepository(client: SupabaseClient<Database>) {
     };
   }
   return {
+    passStatus: (owner: string, id: string, signal?: AbortSignal) =>
+      request(
+        owner,
+        client.rpc("get_campus_pass", { p_booking_id: z.uuid().parse(id) }),
+        passStatusSchema.refine((value) => value.booking_id === id),
+        signal,
+      ),
+    issuePass: (owner: string, id: string, signal?: AbortSignal) =>
+      request(
+        owner,
+        client.rpc("issue_campus_pass", { p_booking_id: z.uuid().parse(id) }),
+        issuedPassSchema.refine(
+          (value) => value.outcome !== "issued" || value.booking_id === id,
+        ),
+        signal,
+      ),
+    scanPass: (
+      owner: string,
+      eventId: string,
+      token: string,
+      signal?: AbortSignal,
+    ) =>
+      request(
+        owner,
+        client.rpc("check_in_campus_pass", {
+          p_event_id: z.uuid().parse(eventId),
+          p_token: admissionTokenSchema.parse(token),
+        }),
+        scanResultSchema,
+        signal,
+      ),
+    checkins: (
+      owner: string,
+      eventId: string,
+      before?: string,
+      signal?: AbortSignal,
+    ) =>
+      request(
+        owner,
+        client.rpc("get_campus_checkins", {
+          p_event_id: z.uuid().parse(eventId),
+          ...(before ? { p_before: before } : {}),
+        }),
+        checkinsSchema.refine((value) => value.event_id === eventId),
+        signal,
+      ),
     access: (owner: string, signal?: AbortSignal) =>
       request(owner, client.rpc("get_campus_access"), accessSchema, signal),
     events: (owner: string, owned = false, signal?: AbortSignal) =>
