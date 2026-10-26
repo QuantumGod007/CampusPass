@@ -175,3 +175,57 @@
     padding: 16px;
   }
 }
+.campus-waitlist {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-line);
+  display: grid;
+  gap: 12px;
+}
+.waitlist-consent {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.waitlist-consent input {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.campus-inbox-link {
+  margin-left: auto;
+  color: var(--color-cobalt);
+}
+.campus-notifications {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+}
+.campus-notifications li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--color-line);
+}
+.campus-notifications h2 {
+  font-size: 20px;
+  margin: 8px 0;
+}
+.campus-notifications p {
+  margin: 8px 0;
+}
+.campus-notifications li > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .campus-notifications li {
+    flex-direction: column;
+  }
+  .campus-inbox-link {
+    margin-left: 0;
+  }
+}

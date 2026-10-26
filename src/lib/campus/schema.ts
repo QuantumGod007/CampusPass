@@ -27,6 +27,7 @@ export const liveEventSchema = z.object({
   updated_at: z.string(),
   confirmed_count: z.number().int().nonnegative(),
   available_seats: z.number().int().nonnegative(),
+  waiting_count: z.number().int().min(0).max(100),
 });
 export const bookingSchema = z.object({
   id: z.uuid(),
@@ -136,3 +137,67 @@ export type IssuedPass = Extract<
   { outcome: "issued" }
 >;
 export type ScanResult = z.infer<typeof scanResultSchema>;
+export const waitlistEntrySchema = z
+  .object({
+    id: z.uuid(),
+    event_id: z.uuid(),
+    status: z.enum(["waiting", "promoted", "withdrawn", "expired"]),
+    booking_id: z.uuid().nullable(),
+    position: z.number().int().positive().nullable(),
+    reason: z
+      .enum([
+        "ineligible",
+        "already_booked",
+        "event_cancelled",
+        "registration_closed",
+      ])
+      .nullable(),
+    created_at: z.iso.datetime({ offset: true }),
+    updated_at: z.iso.datetime({ offset: true }),
+  })
+  .strict();
+export const waitlistStatusSchema = z
+  .object({
+    entry: waitlistEntrySchema.nullable(),
+    waiting_count: z.number().int().min(0).max(100),
+  })
+  .strict();
+export const waitlistJoinSchema = z
+  .object({
+    outcome: z.enum(["joined", "existing", "available"]),
+    entry: waitlistEntrySchema.nullable(),
+  })
+  .strict();
+export const notificationIdSchema = z
+  .string()
+  .regex(/^[1-9][0-9]*$/)
+  .refine(
+    (value) => Number.isSafeInteger(Number(value)),
+    "Invalid notification identifier.",
+  );
+export const notificationSchema = z
+  .object({
+    id: notificationIdSchema,
+    event_id: z.uuid(),
+    booking_id: z.uuid().nullable(),
+    kind: z.enum([
+      "waitlist_joined",
+      "waitlist_promoted",
+      "booking_cancelled",
+      "event_cancelled",
+      "schedule_changed",
+    ]),
+    title: z.string().max(120),
+    body: z.string().max(500),
+    created_at: z.iso.datetime({ offset: true }),
+    read_at: z.iso.datetime({ offset: true }).nullable(),
+  })
+  .strict();
+export const inboxSchema = z
+  .object({
+    items: z.array(notificationSchema).max(50),
+    unread_count: z.number().int().nonnegative(),
+    has_more: z.boolean(),
+  })
+  .strict();
+export type WaitlistEntry = z.infer<typeof waitlistEntrySchema>;
