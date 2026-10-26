@@ -59,10 +59,7 @@ states within the existing layout and design system. Auth-disabled mode keeps
 the full demo and shows an honest unavailable account state.
 
 Institution-scoped text PRNs are unique only after trusted active membership
-provisioning. Unprovisioned profiles remain personal and unverified. A constraint
-keeps organizer/admin roles unavailable until a reviewed administrative pathway
-exists. No account metadata can authorize the Organizer demo. Real bookings,
-event publishing, seat inventory and QR verification remain future work.
+provisioning. Unprovisioned profiles remain personal and unverified. Phase 6 permits audited organizer grants through an owner-only operator function; administrator roles stay blocked. `/campus` uses typed repositories and abortable account-scoped hooks, separate from the demo store. Event-row locks serialize booking, cancellation, capacity edits and event cancellation; a request ledger preserves retry idempotency. Attendee RPCs require current event ownership and active organizer membership. No account metadata authorizes the Organizer demo. QR verification remains future work.
 
 Details, lock ordering, expiry semantics, migration/type generation commands and
 policy names are documented in [database foundation](docs/database.md).
