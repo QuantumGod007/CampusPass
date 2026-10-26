@@ -186,6 +186,56 @@ describe("typed campus repository with mocked HTTP (not database security proof)
     ).rejects.toMatchObject({ code: "42501" });
     expect(transport).toHaveBeenCalledTimes(1);
   });
+  it("sends only the event/intent for waitlist joins and pins the verified bearer", async () => {
+    let rpc: RequestInit | undefined;
+    const repository = connect(async (url, init) => {
+      if (String(url).includes("/user")) return response(authSession().user);
+      rpc = init;
+      return response({ outcome: "available", entry: null });
+    });
+    const key = crypto.randomUUID();
+    await repository.joinWaitlist(
+      authSession().user.id,
+      eventFixture().id,
+      key,
+    );
+    expect(JSON.parse(String(rpc?.body))).toEqual({
+      p_event_id: eventFixture().id,
+      p_request_id: key,
+    });
+    expect(new Headers(rpc?.headers).get("Authorization")).toBe(
+      `Bearer ${authSession().access_token}`,
+    );
+  });
+  it("cannot mark a notification using a different verified account", async () => {
+    const transport = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(
+        response(authSession("00000000-0000-4000-8000-000000000002").user),
+      );
+    const repository = connect(transport);
+    await expect(
+      repository.markNotificationRead(authSession().user.id, "19"),
+    ).rejects.toMatchObject({ code: "42501" });
+    expect(transport).toHaveBeenCalledTimes(1);
+  });
+  it("rejects private inbox fields that are outside the public projection", async () => {
+    const repository = connect(async (url) =>
+      response(
+        String(url).includes("/user")
+          ? authSession().user
+          : {
+              items: [],
+              unread_count: 0,
+              has_more: false,
+              recipient_id: authSession().user.id,
+            },
+      ),
+    );
+    await expect(
+      repository.notifications(authSession().user.id),
+    ).rejects.toMatchObject({ code: "validation" });
+  });
   it.each([
     "P1002",
     "P1003",

@@ -83,6 +83,13 @@ const router = createBrowserRouter([
             }),
           },
           {
+            path: "notifications",
+            lazy: async () => ({
+              Component: (await import("../features/campus/notifications"))
+                .CampusNotifications,
+            }),
+          },
+          {
             path: "organizer/:eventId/check-in",
             lazy: async () => ({
               Component: (await import("../features/campus/admission"))

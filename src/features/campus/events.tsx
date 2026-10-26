@@ -1,3 +1,4 @@
+import { CampusWaitlist } from "./waitlists";
 import { useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowUpRight, Search } from "lucide-react";
@@ -219,6 +220,19 @@ export function CampusEventDetails() {
                       : "Registration closed"}
             </Button>
           )}
+          {access.status === "ready" &&
+            access.data?.institution_id === event.institution_id &&
+            access.data.profile_complete &&
+            bookings.status === "ready" &&
+            !own && (
+              <CampusWaitlist
+                event={event}
+                onChanged={() => {
+                  resource.reload();
+                  bookings.reload();
+                }}
+              />
+            )}
           <ActionError error={action.error} />
           <p className="local-note">
             Identity comes from your account profile. Capacity is allocated

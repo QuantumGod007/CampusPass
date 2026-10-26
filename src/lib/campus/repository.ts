@@ -9,6 +9,11 @@ import {
   issuedPassSchema,
   scanResultSchema,
   checkinsSchema,
+  waitlistEntrySchema,
+  waitlistStatusSchema,
+  waitlistJoinSchema,
+  notificationIdSchema,
+  inboxSchema,
   accessSchema,
   liveEventSchema,
   bookingSchema,
@@ -36,6 +41,9 @@ const messages: Record<string, string> = {
   P1010: "This event changed in another session. Refresh before saving again.",
   P1011: "Capacity cannot be lower than the confirmed registration count.",
   P1012: "This event state cannot be changed.",
+  P1032:
+    "You already have a confirmed registration or an active waiting entry.",
+  P1034: "This event’s waitlist has reached its 100-person limit.",
   P1020: "Entry opens 30 minutes before the event and closes at its end.",
   P1021: "This booking has already been checked in. Refresh admission status.",
   P1022: "Wait three seconds before regenerating your pass.",
@@ -123,6 +131,70 @@ export function createCampusRepository(client: SupabaseClient<Database>) {
     };
   }
   return {
+    waitlist: (owner: string, eventId: string, signal?: AbortSignal) =>
+      request(
+        owner,
+        client.rpc("get_my_campus_waitlist", {
+          p_event_id: z.uuid().parse(eventId),
+        }),
+        waitlistStatusSchema.refine(
+          (value) => !value.entry || value.entry.event_id === eventId,
+        ),
+        signal,
+      ),
+    joinWaitlist: (
+      owner: string,
+      eventId: string,
+      requestId: string,
+      signal?: AbortSignal,
+    ) =>
+      request(
+        owner,
+        client.rpc("join_campus_waitlist", {
+          p_event_id: z.uuid().parse(eventId),
+          p_request_id: z.uuid().parse(requestId),
+        }),
+        waitlistJoinSchema.refine(
+          (value) => !value.entry || value.entry.event_id === eventId,
+        ),
+        signal,
+      ),
+    withdrawWaitlist: (owner: string, entryId: string, signal?: AbortSignal) =>
+      request(
+        owner,
+        client.rpc("withdraw_campus_waitlist", {
+          p_entry_id: z.uuid().parse(entryId),
+        }),
+        waitlistEntrySchema.refine((value) => value.id === entryId),
+        signal,
+      ),
+    notifications: (owner: string, before?: string, signal?: AbortSignal) =>
+      request(
+        owner,
+        client.rpc(
+          "list_campus_notifications",
+          before
+            ? { p_before: Number(notificationIdSchema.parse(before)) }
+            : {},
+        ),
+        inboxSchema,
+        signal,
+      ),
+    markNotificationRead: (owner: string, id: string, signal?: AbortSignal) =>
+      request(
+        owner,
+        client.rpc("mark_campus_notification_read", {
+          p_notification_id: Number(notificationIdSchema.parse(id)),
+        }),
+        z
+          .object({
+            id: notificationIdSchema,
+            read_at: z.iso.datetime({ offset: true }),
+          })
+          .strict()
+          .refine((value) => value.id === id),
+        signal,
+      ),
     passStatus: (owner: string, id: string, signal?: AbortSignal) =>
       request(
         owner,

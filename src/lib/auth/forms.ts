@@ -33,12 +33,12 @@ export const signupSchema = z
 export type LoginValues = z.infer<typeof loginSchema>;
 export type SignupValues = z.infer<typeof signupSchema>;
 
-// Only existing student-facing demo routes are valid destinations. No absolute
+// Only known application routes are valid destinations. No absolute
 // URLs, encoded paths, auth loops, or implicit organizer permissions.
 export function safeAuthRedirect(value: string | null | undefined): string {
   if (
     !value ||
-    !/^\/(?:campus(?:\/(?:organizer|bookings(?:\/[0-9a-f-]{36})?|events\/[0-9a-f-]{36}))?|account\/profile|saved|bookings(?:\/[A-Za-z0-9_-]+)?|events\/[A-Za-z0-9_-]+(?:\/register)?)?$/.test(
+    !/^\/(?:campus(?:\/(?:notifications|organizer|bookings(?:\/[0-9a-f-]{36})?|events\/[0-9a-f-]{36}))?|account\/profile|saved|bookings(?:\/[A-Za-z0-9_-]+)?|events\/[A-Za-z0-9_-]+(?:\/register)?)?$/.test(
       value,
     )
   )

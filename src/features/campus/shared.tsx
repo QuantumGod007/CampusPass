@@ -1,3 +1,4 @@
+import { CampusNotificationLink } from "./notifications";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { ArrowLeft, LoaderCircle } from "lucide-react";
 import { useAuth } from "../../app/auth";
@@ -48,6 +49,7 @@ export function CampusLayout() {
         <Link to="/">
           Switch to the local demo <ArrowLeft size={13} />
         </Link>
+        <CampusNotificationLink />
       </p>
       <Outlet />
     </div>

@@ -62,6 +62,10 @@ export async function cleanupFixture(pool, institution, accounts) {
       [institution],
     );
     await pool.query(
+      "delete from public.event_waitlist where event_id in(select id from public.events where institution_id=$1)",
+      [institution],
+    );
+    await pool.query(
       "delete from public.bookings where event_id in(select id from public.events where institution_id=$1)",
       [institution],
     );

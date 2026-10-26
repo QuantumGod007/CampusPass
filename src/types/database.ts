@@ -198,6 +198,71 @@ export type Database = {
           },
         ];
       };
+      campus_notifications: {
+        Row: {
+          body: string;
+          booking_id: string | null;
+          created_at: string;
+          event_id: string;
+          id: number;
+          identity_key: string;
+          institution_id: string;
+          kind: string;
+          read_at: string | null;
+          recipient_id: string;
+          title: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          body: string;
+          booking_id?: string | null;
+          created_at?: string;
+          event_id: string;
+          id?: never;
+          identity_key: string;
+          institution_id: string;
+          kind: string;
+          read_at?: string | null;
+          recipient_id: string;
+          title: string;
+        };
+        Update: {
+          body?: string;
+          booking_id?: string | null;
+          created_at?: string;
+          event_id?: string;
+          id?: never;
+          identity_key?: string;
+          institution_id?: string;
+          kind?: string;
+          read_at?: string | null;
+          recipient_id?: string;
+          title?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "campus_notifications_booking_id_event_id_fkey";
+            columns: ["booking_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "bookings";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "campus_notifications_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "campus_notifications_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       event_checkins: {
         Row: {
           booking_id: string;
@@ -228,6 +293,58 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "bookings";
             referencedColumns: ["id", "event_id"];
+          },
+        ];
+      };
+      event_waitlist: {
+        Row: {
+          booking_id: string | null;
+          created_at: string;
+          event_id: string;
+          id: string;
+          queue_order: number;
+          reason: string | null;
+          status: string;
+          student_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          booking_id?: string | null;
+          created_at?: string;
+          event_id: string;
+          id?: string;
+          queue_order?: never;
+          reason?: string | null;
+          status?: string;
+          student_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          booking_id?: string | null;
+          created_at?: string;
+          event_id?: string;
+          id?: string;
+          queue_order?: never;
+          reason?: string | null;
+          status?: string;
+          student_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_waitlist_booking_id_event_id_fkey";
+            columns: ["booking_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "bookings";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "event_waitlist_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
           },
         ];
       };
@@ -421,6 +538,43 @@ export type Database = {
           },
         ];
       };
+      waitlist_requests: {
+        Row: {
+          entry_id: string;
+          event_id: string;
+          request_id: string;
+          student_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          entry_id: string;
+          event_id: string;
+          request_id: string;
+          student_id: string;
+        };
+        Update: {
+          entry_id?: string;
+          event_id?: string;
+          request_id?: string;
+          student_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_requests_entry_id_fkey";
+            columns: ["entry_id"];
+            isOneToOne: false;
+            referencedRelation: "event_waitlist";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "waitlist_requests_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -455,12 +609,22 @@ export type Database = {
       };
       get_campus_event: { Args: { p_event_id: string }; Returns: Json };
       get_campus_pass: { Args: { p_booking_id: string }; Returns: Json };
+      get_my_campus_waitlist: { Args: { p_event_id: string }; Returns: Json };
       get_student_account: { Args: Record<PropertyKey, never>; Returns: Json };
       issue_campus_pass: { Args: { p_booking_id: string }; Returns: Json };
+      join_campus_waitlist: {
+        Args: { p_event_id: string; p_request_id: string };
+        Returns: Json;
+      };
       list_campus_attendees: { Args: { p_event_id: string }; Returns: Json };
       list_campus_events: { Args: { p_owned?: boolean }; Returns: Json };
+      list_campus_notifications: { Args: { p_before?: number }; Returns: Json };
       list_my_campus_bookings: {
         Args: Record<PropertyKey, never>;
+        Returns: Json;
+      };
+      mark_campus_notification_read: {
+        Args: { p_notification_id: number };
         Returns: Json;
       };
       save_campus_event: {
@@ -495,6 +659,7 @@ export type Database = {
         };
         Returns: Json;
       };
+      withdraw_campus_waitlist: { Args: { p_entry_id: string }; Returns: Json };
     };
     Enums: {
       academic_year:

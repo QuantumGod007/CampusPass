@@ -376,6 +376,10 @@ export function CampusOrganizer() {
                     >
                       {event.confirmed_count} confirmed / {event.capacity}
                     </button>
+                    <p className="small muted">
+                      {event.waiting_count} waiting · {event.available_seats}{" "}
+                      available
+                    </p>
                   </td>
                   <td>
                     <div className="table-actions">

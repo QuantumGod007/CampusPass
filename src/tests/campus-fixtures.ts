@@ -23,6 +23,7 @@ export const eventFixture = (): LiveEvent => ({
   updated_at: "2026-10-26T10:00:00+00:00",
   confirmed_count: 1,
   available_seats: 1,
+  waiting_count: 0,
   registration_open: true,
   editable: true,
 });

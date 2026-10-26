@@ -15,9 +15,9 @@
     "db:types": "node scripts/database/generate-types.mjs",
     "db:types:check": "node scripts/database/generate-types.mjs --check",
     "test:db": "node scripts/database/policy-test.mjs",
-    "test:integration": "node scripts/database/api-test.mjs && node scripts/database/live-api-test.mjs && node scripts/database/admission-api-test.mjs",
+    "test:integration": "node scripts/database/api-test.mjs && node scripts/database/live-api-test.mjs && node scripts/database/admission-api-test.mjs && node scripts/database/waitlist-api-test.mjs",
     "test:e2e:integration": "playwright test --config playwright.integration.config.ts",
-    "test:db:concurrency": "node scripts/database/concurrency-test.mjs && node scripts/database/booking-concurrency-test.mjs && node scripts/database/admission-concurrency-test.mjs",
+    "test:db:concurrency": "node scripts/database/concurrency-test.mjs && node scripts/database/booking-concurrency-test.mjs && node scripts/database/admission-concurrency-test.mjs && node scripts/database/waitlist-concurrency-test.mjs",
     "operator:provision": "node scripts/operator/provision.mjs",
     "dev:fixtures": "node scripts/database/live-fixture.mjs",
     "dev:fixtures:clean": "node scripts/database/live-fixture.mjs --clean"

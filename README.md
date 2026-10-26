@@ -131,7 +131,7 @@ is allowed until the event starts; rebooking uses a new request/reference and
 retains cancelled history. Organizer cancellation cancels all confirmed bookings.
 Availability refreshes on navigation or the refresh buttons; booking always
 rechecks capacity server-side. References do not verify admission. Secure entry passes are separate;
-waitlists and notifications remain future work.
+waitlists and the in-app inbox use the additional migration below. External notification delivery remains future work.
 
 Run `npm run test:db`, `npm run test:db:concurrency`, `npm run test:integration`
 and `npm run test:e2e:integration` against the isolated stack. CI runs these with
@@ -144,7 +144,13 @@ Apply `202610270001_secure_admission.sql` with the other reviewed migrations. Wi
 
 Passes contain 256 random bits, last at most 90 seconds and are stored only as SHA-256 hashes. Regeneration supersedes prior tokens; event edits invalidate outstanding passes. Secrets stay in page memory and are cleared on expiry, hide, offline and account changes. Do not enable request-body/SQL-parameter logging for credential RPCs. Issuance allows 20 per account/minute, with a three-second regeneration gap; scans allow 120 per organizer/minute. Current institution membership and a non-banned account are required at scan time; the organizer also needs a live Auth session and event ownership. Admissions remain auditable after cancellation; their count can then exceed current confirmed registrations. History pages contain at most 50 entries.
 
-Run admission SQL/concurrency coverage with the existing database commands; `test:integration` includes real Auth/PostgREST credential tests and `test:e2e:integration` includes independent student/organizer browser check-in. Local disposable fixtures accept `startsInMinutes: 10` for the admission window; no hosted database or deployment is changed. No new environment variables. This is online admission, not physical identity verification: a copied valid QR may be used first by somebody else. No offline verification, staff overrides or notifications. The original demo remains separate.
+Run admission SQL/concurrency coverage with the existing database commands; `test:integration` includes real Auth/PostgREST credential tests and `test:e2e:integration` includes independent student/organizer browser check-in. Local disposable fixtures accept `startsInMinutes: 10` for the admission window; no hosted database or deployment is changed. No new environment variables. This is online admission, not physical identity verification: a copied valid QR may be used first by somebody else. No offline verification, staff overrides or external notification delivery. The original demo remains separate.
+
+### Waitlists and in-app inbox
+
+Apply `202610270002_waitlists_notifications.sql` after the admission migration; no new environment variables or dependencies. Sold-out real events offer a consent-based waitlist (maximum 100 active entries per event). Cancellation, capacity changes and normal booking attempts serialize on the event row and reconcile FIFO eligibility; explicit waitlist refresh also reconciles. Ineligible entries expire with an audited reason, and promotion creates a new booking/reference. Event cancellation closes waiting entries; registration cutoff uses database time. No worker or manual priority control is required. Promoted bookings use the existing secure entry pass.
+
+`/campus/notifications` contains transactional join, promotion, booking/event cancellation and schedule-change messages, with account-only read receipts and 50-item cursor pages. The inbox/badge refresh after actions, navigation and explicit refresh; there is no background delivery, SMS, email or push. Existing database/concurrency, API and browser integration commands include the waitlist journey. No hosted migration or deployment runs automatically.
 
 ## Registration and validation
 
