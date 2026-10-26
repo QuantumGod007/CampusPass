@@ -296,6 +296,87 @@ export type Database = {
           },
         ];
       };
+      event_report_rows: {
+        Row: {
+          booking_status: Database["public"]["Enums"]["booking_status"];
+          checked_in_at: string | null;
+          display_name: string;
+          from_waitlist: boolean;
+          position: number;
+          reference: string;
+          snapshot_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          booking_status: Database["public"]["Enums"]["booking_status"];
+          checked_in_at?: string | null;
+          display_name: string;
+          from_waitlist: boolean;
+          position: number;
+          reference: string;
+          snapshot_id: string;
+        };
+        Update: {
+          booking_status?: Database["public"]["Enums"]["booking_status"];
+          checked_in_at?: string | null;
+          display_name?: string;
+          from_waitlist?: boolean;
+          position?: number;
+          reference?: string;
+          snapshot_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_report_rows_snapshot_id_fkey";
+            columns: ["snapshot_id"];
+            isOneToOne: false;
+            referencedRelation: "event_report_snapshots";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      event_report_snapshots: {
+        Row: {
+          analytics: NonNullable<Json>;
+          created_at: string;
+          event_id: string;
+          expires_at: string;
+          id: string;
+          organizer_id: string;
+          request_id: string;
+          row_count: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          analytics: NonNullable<Json>;
+          created_at?: string;
+          event_id: string;
+          expires_at: string;
+          id?: string;
+          organizer_id: string;
+          request_id: string;
+          row_count: number;
+        };
+        Update: {
+          analytics?: NonNullable<Json>;
+          created_at?: string;
+          event_id?: string;
+          expires_at?: string;
+          id?: string;
+          organizer_id?: string;
+          request_id?: string;
+          row_count?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_report_snapshots_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       event_waitlist: {
         Row: {
           booking_id: string | null;
@@ -496,6 +577,80 @@ export type Database = {
         };
         Relationships: [];
       };
+      participation_records: {
+        Row: {
+          booking_id: string;
+          checked_in_at: string;
+          checkin_id: string;
+          display_name: string;
+          ends_at: string;
+          event_id: string;
+          event_title: string;
+          id: string;
+          institution_name: string;
+          issued_at: string;
+          reference: string;
+          starts_at: string;
+          student_id: string;
+          venue: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          booking_id: string;
+          checked_in_at: string;
+          checkin_id: string;
+          display_name: string;
+          ends_at: string;
+          event_id: string;
+          event_title: string;
+          id?: string;
+          institution_name: string;
+          issued_at?: string;
+          reference: string;
+          starts_at: string;
+          student_id: string;
+          venue: string;
+        };
+        Update: {
+          booking_id?: string;
+          checked_in_at?: string;
+          checkin_id?: string;
+          display_name?: string;
+          ends_at?: string;
+          event_id?: string;
+          event_title?: string;
+          id?: string;
+          institution_name?: string;
+          issued_at?: string;
+          reference?: string;
+          starts_at?: string;
+          student_id?: string;
+          venue?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "participation_records_booking_id_event_id_fkey";
+            columns: ["booking_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "bookings";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "participation_records_checkin_id_booking_id_event_id_fkey";
+            columns: ["checkin_id", "booking_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_checkins";
+            referencedColumns: ["id", "booking_id", "event_id"];
+          },
+          {
+            foreignKeyName: "participation_records_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       student_profiles: {
         Row: {
           academic_year: Database["public"]["Enums"]["academic_year"];
@@ -608,6 +763,18 @@ export type Database = {
         Returns: Json;
       };
       get_campus_event: { Args: { p_event_id: string }; Returns: Json };
+      get_campus_event_analytics: {
+        Args: { p_event_id: string };
+        Returns: Json;
+      };
+      get_campus_event_report_page: {
+        Args: { p_after?: number; p_snapshot_id: string };
+        Returns: Json;
+      };
+      get_campus_participation: {
+        Args: { p_booking_id: string };
+        Returns: Json;
+      };
       get_campus_pass: { Args: { p_booking_id: string }; Returns: Json };
       get_my_campus_waitlist: { Args: { p_event_id: string }; Returns: Json };
       get_student_account: { Args: Record<PropertyKey, never>; Returns: Json };
@@ -657,6 +824,10 @@ export type Database = {
           p_expected_revision: number;
           p_status: Database["public"]["Enums"]["event_status"];
         };
+        Returns: Json;
+      };
+      start_campus_event_report: {
+        Args: { p_event_id: string; p_request_id: string };
         Returns: Json;
       };
       withdraw_campus_waitlist: { Args: { p_entry_id: string }; Returns: Json };
