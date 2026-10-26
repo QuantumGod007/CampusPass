@@ -248,7 +248,7 @@ try {
   );
   // Move only disposable owner-controlled timestamps, never a production clock override.
   await pool.query(
-    "update public.admission_tokens set issued_at=clock_timestamp()-interval '91 seconds',expires_at=clock_timestamp()-interval '1 second' where booking_id=$1",
+    "update public.admission_tokens set issued_at=statement_timestamp()-interval '91 seconds',expires_at=statement_timestamp()-interval '1 second' where booking_id=$1",
     [b.id],
   );
   equal((await scan(e, beta.token)).outcome, "expired");
