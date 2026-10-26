@@ -129,6 +129,11 @@ begin
  if exists(select 1 from public.admission_tokens where booking_id=b.id and issued_at>as_of-interval '3 seconds') then
  raise exception 'Wait before refreshing pass' using errcode='P1022'; end if;
  if not campuspass_private.admission_limit(actor,'issue') then return jsonb_build_object('outcome','rate_limited'); end if;
+ -- A rate-bucket lock can also wait behind another issuance. Recheck time and
+ -- access after that wait before producing a new credential.
+ perform campuspass_private.admission_actor(e.institution_id,false);
+ as_of:=clock_timestamp();
+ if as_of<e.starts_at-interval '30 minutes' or as_of>=e.ends_at then raise exception 'Outside admission window' using errcode='P1020'; end if;
  raw_token:='cp1_'||encode(extensions.gen_random_bytes(32),'hex');
  expiry:=least(as_of+interval '90 seconds',e.ends_at);
  insert into public.admission_tokens(booking_id,event_id,token_hash,event_revision,issued_at,expires_at)

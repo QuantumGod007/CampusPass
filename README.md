@@ -130,13 +130,21 @@ resurrect a cancelled registration. Cancellation requires active membership and
 is allowed until the event starts; rebooking uses a new request/reference and
 retains cancelled history. Organizer cancellation cancels all confirmed bookings.
 Availability refreshes on navigation or the refresh buttons; booking always
-rechecks capacity server-side. References do not verify admission. QR check-in,
+rechecks capacity server-side. References do not verify admission. Secure entry passes are separate;
 waitlists and notifications remain future work.
 
 Run `npm run test:db`, `npm run test:db:concurrency`, `npm run test:integration`
 and `npm run test:e2e:integration` against the isolated stack. CI runs these with
 real Auth/PostgREST and separate browser contexts. Ordinary browser regressions
 use fixture HTTP for Auth; screenshot capture is opt-in and disabled by default.
+
+### Secure online admission
+
+Apply `202610270001_secure_admission.sql` with the other reviewed migrations. Within 30 minutes before start through event end (database time), open a confirmed `/campus/bookings/:bookingId` and select **Show entry pass**. In a separate owning-organizer account, choose **Check in** in the studio; scan with a browser supporting `BarcodeDetector` and camera permission, or paste the temporary entry code. Both paths use the same authenticated PostgreSQL transaction. Refresh admission status/history to reconcile a lost response; repeating a successful scan reports **Already checked in**, never another admission.
+
+Passes contain 256 random bits, last at most 90 seconds and are stored only as SHA-256 hashes. Regeneration supersedes prior tokens; event edits invalidate outstanding passes. Secrets stay in page memory and are cleared on expiry, hide, offline and account changes. Do not enable request-body/SQL-parameter logging for credential RPCs. Issuance allows 20 per account/minute, with a three-second regeneration gap; scans allow 120 per organizer/minute. Current institution membership and a non-banned account are required at scan time; the organizer also needs a live Auth session and event ownership. Admissions remain auditable after cancellation; their count can then exceed current confirmed registrations. History pages contain at most 50 entries.
+
+Run admission SQL/concurrency coverage with the existing database commands; `test:integration` includes real Auth/PostgREST credential tests and `test:e2e:integration` includes independent student/organizer browser check-in. Local disposable fixtures accept `startsInMinutes: 10` for the admission window; no hosted database or deployment is changed. No new environment variables. This is online admission, not physical identity verification: a copied valid QR may be used first by somebody else. No offline verification, staff overrides or notifications. The original demo remains separate.
 
 ## Registration and validation
 
@@ -239,9 +247,9 @@ real versus mocked test coverage, and database CI evidence.
 
 ## Current limitations
 
-- Real accounts/events/bookings require a configured, migrated Supabase project and trusted institutional provisioning. Demo routes remain browser-local. Payments, booking emails and security-verifiable admission/QR check-in are not implemented.
+- Real accounts/events/bookings require a configured, migrated Supabase project and trusted institutional provisioning. Demo routes remain browser-local. Payments and booking emails are not implemented. Secure online QR admission is limited to institution accounts in `/campus`.
 - Demo records belong to the browser profile and origin where they were created; they do not synchronize across users or devices. Use fictional details in demo forms. Real student profiles and campus bookings persist separately in PostgreSQL with own-only access.
 - Tabs on the same origin receive storage updates, but concurrent writes are last-write-wins. This limitation applies to the demo; `/campus` allocates seats transactionally in PostgreSQL.
 - Clearing browser storage removes demo records (not PostgreSQL profiles). If storage is unavailable, the app displays a notice and changes last only for the current session.
 - Persisted events eventually become past events. Reset the demo to generate new upcoming dates.
-- Poster themes use fixed artwork and lettering. Custom event titles appear separately in the interface and pass. The pass barcode is decorative and cannot verify entry.
+- Poster themes use fixed artwork and lettering. Custom event titles appear separately in the interface and pass. The demo pass barcode is decorative and cannot verify entry.

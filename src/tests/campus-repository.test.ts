@@ -128,6 +128,64 @@ describe("typed campus repository with mocked HTTP (not database security proof)
     ).rejects.toThrow();
     expect(transport).not.toHaveBeenCalled();
   });
+  it("pins the admission token to the verified account and never uses a booking reference", async () => {
+    let rpc: RequestInit | undefined;
+    const repository = connect(async (url, init) => {
+      if (String(url).includes("/user")) return response(authSession().user);
+      rpc = init;
+      return response({
+        outcome: "admitted",
+        reference: "CP-fixture",
+        checked_in_at: new Date().toISOString(),
+      });
+    });
+    const token = "cp1_" + "a".repeat(64);
+    await repository.scanPass(authSession().user.id, eventFixture().id, token);
+    expect(new Headers(rpc?.headers).get("Authorization")).toBe(
+      `Bearer ${authSession().access_token}`,
+    );
+    expect(JSON.parse(String(rpc?.body))).toEqual({
+      p_event_id: eventFixture().id,
+      p_token: token,
+    });
+    expect(() =>
+      repository.scanPass(
+        authSession().user.id,
+        eventFixture().id,
+        "CP-reference",
+      ),
+    ).toThrow();
+  });
+  it("rejects an admission result for another booking", async () => {
+    const repository = connect(async (url) =>
+      response(
+        String(url).includes("/user")
+          ? authSession().user
+          : {
+              outcome: "issued",
+              booking_id: crypto.randomUUID(),
+              token: "cp1_" + "a".repeat(64),
+              server_now: new Date().toISOString(),
+              expires_at: new Date(Date.now() + 90000).toISOString(),
+            },
+      ),
+    );
+    await expect(
+      repository.issuePass(authSession().user.id, bookingFixture().id),
+    ).rejects.toMatchObject({ code: "validation" });
+  });
+  it("does not issue a credential when Auth verifies a different account", async () => {
+    const transport = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(
+        response(authSession("00000000-0000-4000-8000-000000000002").user),
+      );
+    const repository = connect(transport);
+    await expect(
+      repository.issuePass(authSession().user.id, bookingFixture().id),
+    ).rejects.toMatchObject({ code: "42501" });
+    expect(transport).toHaveBeenCalledTimes(1);
+  });
   it.each([
     "P1002",
     "P1003",

@@ -58,8 +58,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci
-      - name: Install Chromium and system dependencies
-        run: npx playwright install --with-deps chromium
+      - name: Install Chromium headless shell
+        run: npx playwright install --only-shell chromium
       - name: Run browser tests
         run: npm run test:e2e
       - name: Upload browser reports and failure evidence
@@ -101,7 +101,7 @@ jobs:
       - name: Run real Auth, SMTP confirmation, PostgREST and privacy tests
         run: npm run test:integration
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --only-shell chromium
       - name: Run real account and multi-user booking browser journeys
         run: npm run test:e2e:integration
       - name: Upload schema drift evidence (no credentials or Auth traces)
