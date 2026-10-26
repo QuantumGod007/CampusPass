@@ -86,6 +86,7 @@ describe("authentication return destinations", () => {
     "/saved",
     "/bookings",
     "/bookings/CP-123",
+    "/campus/notifications",
     "/events/buildfest",
     "/events/buildfest/register",
   ])("retains a supported local destination: %s", (target) => {
@@ -109,6 +110,8 @@ describe("authentication return destinations", () => {
     "/account",
     "/events/../login",
     "/saved?next=https://evil.example",
+    "/campus/notifications/other",
+    "/campus/notifications?next=https://evil.example",
     "/saved#fragment",
     "/saved\n",
     "/saved\r\n",
