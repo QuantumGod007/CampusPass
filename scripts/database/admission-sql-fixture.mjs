@@ -2,10 +2,10 @@
 // separate API suite exercises real GoTrue sessions, not these synthetic ones.
 import { randomUUID } from "node:crypto";
 import { databasePool } from "./test-environment.mjs";
-export async function admissionFixture() {
+export async function admissionFixture({ userCount = 4 } = {}) {
   const pool = databasePool(),
     institution = randomUUID();
-  const users = Array.from({ length: 4 }, () => ({
+  const users = Array.from({ length: userCount }, () => ({
     id: randomUUID(),
     session: randomUUID(),
   }));
@@ -57,6 +57,10 @@ export async function admissionFixture() {
       );
       await pool.query(
         "delete from public.booking_requests where event_id=any($1::uuid[])",
+        [events],
+      );
+      await pool.query(
+        "delete from public.event_waitlist where event_id=any($1::uuid[])",
         [events],
       );
       await pool.query(
