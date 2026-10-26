@@ -70,3 +70,69 @@ export type LiveBooking = z.infer<typeof bookingDetailSchema>;
 export type CampusAccess = z.infer<typeof accessSchema>;
 export type Attendee = z.infer<typeof attendeeSchema>;
 export type LiveEventFormValues = z.input<typeof liveEventFormSchema>;
+export const admissionTokenSchema = z.string().regex(/^cp1_[0-9a-f]{64}$/);
+export const passStatusSchema = z
+  .object({
+    booking_id: z.uuid(),
+    checked_in_at: z.iso.datetime({ offset: true }).nullable(),
+    server_now: z.iso.datetime({ offset: true }),
+    opens_at: z.iso.datetime({ offset: true }),
+    closes_at: z.iso.datetime({ offset: true }),
+    eligible: z.boolean(),
+  })
+  .strict();
+export const issuedPassSchema = z.discriminatedUnion("outcome", [
+  z
+    .object({
+      outcome: z.literal("issued"),
+      booking_id: z.uuid(),
+      token: admissionTokenSchema,
+      expires_at: z.iso.datetime({ offset: true }),
+      server_now: z.iso.datetime({ offset: true }),
+    })
+    .strict(),
+  z.object({ outcome: z.literal("rate_limited") }).strict(),
+]);
+export const scanResultSchema = z
+  .object({
+    outcome: z.enum([
+      "admitted",
+      "already_checked_in",
+      "expired",
+      "invalid",
+      "cancelled",
+      "ineligible",
+      "outside_window",
+      "rate_limited",
+    ]),
+    checked_in_at: z.iso.datetime({ offset: true }).nullable().optional(),
+    reference: z.string().nullable().optional(),
+  })
+  .strict();
+export const checkinsSchema = z
+  .object({
+    event_id: z.uuid(),
+    confirmed_count: z.number().int().nonnegative(),
+    admitted_count: z.number().int().nonnegative(),
+    server_now: z.iso.datetime({ offset: true }),
+    opens_at: z.iso.datetime({ offset: true }),
+    closes_at: z.iso.datetime({ offset: true }),
+    event_status: z.enum(Constants.public.Enums.event_status),
+    history: z
+      .array(
+        z
+          .object({
+            checked_in_at: z.iso.datetime({ offset: true }),
+            reference: z.string(),
+            display_name: z.string(),
+          })
+          .strict(),
+      )
+      .max(50),
+  })
+  .strict();
+export type IssuedPass = Extract<
+  z.infer<typeof issuedPassSchema>,
+  { outcome: "issued" }
+>;
+export type ScanResult = z.infer<typeof scanResultSchema>;

@@ -1,3 +1,4 @@
+import { CampusEntryPass } from "./admission";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/button";
@@ -165,6 +166,7 @@ function BookingWorkspace({ id }: { id?: string }) {
           }
         />
       )}
+      {id && results?.[0] && <CampusEntryPass bookingId={id} />}
       <p className="subtle-notice">
         Cancellation is allowed until the event starts and requires active
         membership. Rebooking creates a new reference if a seat remains.

@@ -50,6 +50,14 @@ export async function cleanupFixture(pool, institution, accounts) {
   );
   if (rows.length) {
     await pool.query(
+      "delete from public.event_checkins where event_id in(select id from public.events where institution_id=$1)",
+      [institution],
+    );
+    await pool.query(
+      "delete from public.admission_tokens where event_id in(select id from public.events where institution_id=$1)",
+      [institution],
+    );
+    await pool.query(
       "delete from public.booking_requests where event_id in(select id from public.events where institution_id=$1)",
       [institution],
     );
@@ -75,6 +83,7 @@ export async function cleanupFixture(pool, institution, accounts) {
 export async function createLiveFixture({
   sampleEvent = true,
   capacity = 2,
+  startsInMinutes = 1440,
 } = {}) {
   apiEnvironment();
   const pool = databasePool(),
@@ -116,7 +125,7 @@ export async function createLiveFixture({
       );
     let event;
     if (sampleEvent) {
-      const start = new Date(Date.now() + 86400000),
+      const start = new Date(Date.now() + startsInMinutes * 60000),
         end = new Date(start.getTime() + 7200000);
       const draft = ok(
         await organizer.client.rpc("create_campus_event", {

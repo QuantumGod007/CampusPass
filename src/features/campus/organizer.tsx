@@ -379,6 +379,11 @@ export function CampusOrganizer() {
                   </td>
                   <td>
                     <div className="table-actions">
+                      <Button asChild variant="outline" size="sm">
+                        <Link to={`/campus/organizer/${event.id}/check-in`}>
+                          Check in
+                        </Link>
+                      </Button>
                       {event.editable && (
                         <Button
                           variant="outline"

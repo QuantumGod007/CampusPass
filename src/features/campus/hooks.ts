@@ -6,7 +6,7 @@ import {
   getCampusRepository,
   type CampusRepository,
 } from "../../lib/campus/repository";
-function useIdentity() {
+export function useCampusIdentity() {
   const auth = useAuth();
   const owner =
     auth.status === "authenticated" && !auth.isSigningOut
@@ -19,8 +19,10 @@ function useIdentity() {
 }
 export function useAccountQuery<T>(
   load: (owner: string, signal: AbortSignal) => Promise<T>,
+  scope = "",
 ) {
-  const { owner, key } = useIdentity();
+  const { owner, key: identityKey } = useCampusIdentity();
+  const key = identityKey ? `${identityKey}:${scope}` : null;
   const [version, retry] = useState(0);
   const [state, setState] = useState<{
     key: string | null;
@@ -97,7 +99,7 @@ export function useCampusAttendees(id: string) {
   );
 }
 export function useCampusAction() {
-  const { owner, key } = useIdentity();
+  const { owner, key } = useCampusIdentity();
   const lifetime = useRef<{ active: boolean; key: string | null } | null>(null);
   const pending = useRef<AbortController | null>(null);
   const [state, setState] = useState<{

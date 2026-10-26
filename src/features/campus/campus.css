@@ -4,7 +4,7 @@
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: var(--color-muted);
+  color: #62666d;
   border-bottom: 1px solid var(--color-line);
   padding-bottom: 20px;
   margin-bottom: 35px;
@@ -12,7 +12,7 @@
 .campus-boundary strong {
   font-size: 10px;
   letter-spacing: 1px;
-  color: var(--color-blue);
+  color: var(--color-cobalt);
 }
 .campus-boundary a {
   display: inline-flex;
@@ -108,5 +108,70 @@
   }
   .campus-view .tabs {
     flex-wrap: wrap;
+  }
+}
+.admission-card {
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+  max-width: 680px;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.admission-card h2,
+.admission-card p {
+  margin: 0;
+}
+.admission-card form {
+  display: grid;
+  gap: 16px;
+}
+.admission-credential {
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.admission-qr {
+  width: min(100%, 280px);
+  height: auto;
+  border-radius: 8px;
+}
+.admission-code {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  display: block;
+  padding: 12px;
+  user-select: all;
+}
+.admission-camera {
+  display: grid;
+  gap: 12px;
+}
+.admission-camera video {
+  width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+}
+.admission-camera video[hidden] {
+  display: none;
+}
+.admission-result {
+  border: 1px solid var(--color-line);
+  padding: 20px;
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+  margin-top: 24px;
+}
+.admission-success {
+  border-color: var(--color-cobalt);
+  background: var(--color-blue-light, #eff5ff);
+}
+@media (max-width: 600px) {
+  .admission-card {
+    padding: 16px;
   }
 }
