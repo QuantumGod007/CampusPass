@@ -91,10 +91,11 @@ for (const width of [1440, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 1000 });
       await openPass(page, long);
       await assertPosterAndContent(page);
-      await page.screenshot({
-        path: testInfo.outputPath("ticket.png"),
-        fullPage: true,
-      });
+      if (process.env.CAPTURE_SCREENSHOTS === "true")
+        await page.screenshot({
+          path: testInfo.outputPath("ticket.png"),
+          fullPage: true,
+        });
     });
   }
 }
@@ -115,16 +116,18 @@ test("print ticket preserves the full poster and fits on A4", async ({
   const ticket = await page.locator(".digital-pass").boundingBox();
   // A4 height minus the two 15mm page margins, in CSS pixels.
   expect(ticket!.height).toBeLessThan(1009);
-  await page.screenshot({
-    path: testInfo.outputPath("ticket-print.png"),
-    fullPage: true,
-  });
-  await page.pdf({
-    path: testInfo.outputPath("ticket-print.pdf"),
-    format: "A4",
-    printBackground: true,
-    preferCSSPageSize: true,
-  });
+  if (process.env.CAPTURE_SCREENSHOTS === "true")
+    await page.screenshot({
+      path: testInfo.outputPath("ticket-print.png"),
+      fullPage: true,
+    });
+  if (process.env.CAPTURE_SCREENSHOTS === "true")
+    await page.pdf({
+      path: testInfo.outputPath("ticket-print.pdf"),
+      format: "A4",
+      printBackground: true,
+      preferCSSPageSize: true,
+    });
 });
 
 test("calendar controls and ticket preserve automated accessibility", async ({

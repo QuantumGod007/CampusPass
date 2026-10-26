@@ -41,7 +41,7 @@ export const accountSchema = z.object({
       institution_id: z.uuid(),
       institution_name: z.string(),
       status: z.enum(["pending", "active", "revoked", "expired", "inactive"]),
-      role: z.literal("student"),
+      role: z.enum(["student", "organizer"]),
       expires_at: z.string().nullable(),
     })
     .nullable(),

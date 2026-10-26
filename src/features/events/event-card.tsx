@@ -10,7 +10,7 @@ export function Poster({
   className = "",
   priority = false,
 }: {
-  event: CampusEvent;
+  event: Pick<CampusEvent, "title" | "theme">;
   className?: string;
   priority?: boolean;
 }) {

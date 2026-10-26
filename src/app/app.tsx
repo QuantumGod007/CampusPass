@@ -49,6 +49,49 @@ const router = createBrowserRouter([
     children: [
       { path: "/", element: <Discover /> },
       {
+        path: "/campus",
+        lazy: async () => ({
+          Component: (await import("../features/campus/shared")).CampusLayout,
+        }),
+        children: [
+          {
+            index: true,
+            lazy: async () => ({
+              Component: (await import("../features/campus/events"))
+                .CampusDiscover,
+            }),
+          },
+          {
+            path: "events/:eventId",
+            lazy: async () => ({
+              Component: (await import("../features/campus/events"))
+                .CampusEventDetails,
+            }),
+          },
+          {
+            path: "bookings",
+            lazy: async () => ({
+              Component: (await import("../features/campus/bookings"))
+                .CampusBookings,
+            }),
+          },
+          {
+            path: "bookings/:bookingId",
+            lazy: async () => ({
+              Component: (await import("../features/campus/bookings"))
+                .CampusBookingDetails,
+            }),
+          },
+          {
+            path: "organizer",
+            lazy: async () => ({
+              Component: (await import("../features/campus/organizer"))
+                .CampusOrganizer,
+            }),
+          },
+        ],
+      },
+      {
         path: "/account/profile",
         lazy: async () => ({
           Component: (await import("../features/account/profile-page"))

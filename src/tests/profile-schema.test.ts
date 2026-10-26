@@ -32,7 +32,7 @@ describe("real account validation", () => {
       accountSchema.safeParse(profileAccount(undefined, true)).success,
     ).toBe(true);
   });
-  it("refuses fabricated privileged roles in a profile response", () => {
+  it("refuses unsupported administrator roles in a profile response", () => {
     const account = profileAccount();
     expect(
       accountSchema.safeParse({

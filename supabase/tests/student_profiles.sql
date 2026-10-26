@@ -42,7 +42,7 @@ insert into public.institution_memberships(user_id,institution_id,status,approve
  ('10000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000001','active',now()),
  ('10000000-0000-4000-8000-000000000002','30000000-0000-4000-8000-000000000001','active',now()),
  ('10000000-0000-4000-8000-000000000003','30000000-0000-4000-8000-000000000002','active',now());
-select campuspass_tests.denied($q$update public.institution_memberships set role='organizer'$q$,'23514','privileged roles remain unavailable even to provisioning');
+select campuspass_tests.denied($q$update public.institution_memberships set role='admin'$q$,'23514','administrator roles remain unavailable even to provisioning');
 select set_config('request.jwt.claims', jsonb_build_object('sub','10000000-0000-4000-8000-000000000002','role','authenticated','session_id','20000000-0000-4000-8000-000000000002','exp',extract(epoch from now())+3600)::text,true);
 set local role authenticated;
 select campuspass_tests.ok((select count(*) from public.student_profiles)=0,'cross-user profile reads return no records');

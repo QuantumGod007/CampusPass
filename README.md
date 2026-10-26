@@ -4,7 +4,7 @@ Live demo: [https://campuspass-rho.vercel.app/](https://campuspass-rho.vercel.ap
 
 CampusPass is a React application for browsing college events and managing event registrations. Students can filter events, save them for later, register through a validated form, and view or cancel their bookings. An organizer workspace supports creating and editing events.
 
-Events and bookings are a browser-local demonstration. Events are fictional, and registrations do not reserve real seats. Optional student authentication and private student profiles use Supabase Auth/PostgreSQL; real account records remain separate from demo data.
+The original routes are a fictional browser-local demonstration. With Supabase configured, `/campus` provides separate shared institution events and genuine account-backed bookings. Demo records are never imported into real accounts.
 
 ![CampusPass event discovery](docs/screenshots/discover-desktop-preview.png)
 
@@ -28,8 +28,8 @@ With Supabase configured and the versioned migration applied, `/account/profile`
 supports first-time setup, authorized profile editing, confirmed Auth email,
 server persistence and restoration from another signed-in browser. PRNs preserve
 leading zeros; institution association requires trusted membership provisioning.
-A self-declared PRN never verifies enrollment, and organizer/admin roles remain
-unavailable. See [database setup and security](docs/database.md).
+A self-declared PRN never verifies enrollment. Organizer access requires trusted
+operator provisioning; administrator roles remain unavailable. See [database setup and security](docs/database.md).
 
 ## Technology
 
@@ -60,7 +60,7 @@ The default event demo does not require environment variables, API keys, a datab
 Opt-in Supabase email/password signup, login, and session management are available separately from demo records.
 Configuration, security boundaries, and email setup
 are documented in [docs/authentication.md](docs/authentication.md). The default
-event and booking interface remains a demo; signing in does not create real reservations.
+original event and booking routes remain a demo. Real reservations are made only in `/campus`.
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the current components and data flows.
 
 ### Available commands
@@ -79,6 +79,64 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the current components and data flows
 | `npm run test:db` / `test:db:concurrency` | Run real SQL policies and concurrent-write tests                    |
 | `npm run test:integration`                | Real isolated Supabase Auth, SMTP confirmation and API tests        |
 | `npm run test:e2e:integration`            | Real Supabase browser account journey                               |
+
+## Shared institution events
+
+`/campus` lists published institution events, `/campus/bookings` contains the
+signed-in student's persistent registrations, and `/campus/organizer` is available
+only to provisioned organizers. The original `/`, `/bookings` and `/organizer`
+routes remain explicitly separate demos. Account navigation links to Campus events.
+
+Apply the forward-only migrations in `supabase/migrations/` before enabling the
+account build. Use `npx supabase migration up --local` for the isolated local
+stack; hosted migration remains an explicitly reviewed operator action (see
+[database setup](docs/database.md)). No hosted database is migrated automatically.
+
+For a disposable local multi-user setup, start Docker/Supabase and copy only its
+publishable key from `npx supabase status`:
+
+```bash
+npx supabase start
+export TEST_SUPABASE_URL=http://127.0.0.1:54321
+export TEST_SUPABASE_PUBLISHABLE_KEY=sb_publishable_REPLACE_WITH_LOCAL_VALUE
+export TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
+npm run dev:fixtures
+VITE_AUTH_ENABLED=true VITE_SUPABASE_URL="$TEST_SUPABASE_URL" VITE_SUPABASE_PUBLISHABLE_KEY="$TEST_SUPABASE_PUBLISHABLE_KEY" npm run dev -- --port 4175
+```
+
+The setup creates real confirmed local Auth accounts (one organizer and two
+students), one institution and a published two-seat event through authenticated
+APIs. Disposable login credentials are saved only in the ignored, private
+`.test-artifacts/live-fixture.json`; never commit or publish that file. Use
+`npm run dev:fixtures:clean` with the same isolated test settings to remove them.
+Fresh ordinary signups receive no institutional approval or organizer role.
+
+A trusted database operator can provision an existing account/profile using an
+owner connection (or a DBA-authorized operator role), never a browser key:
+
+```bash
+# Set OPERATOR_DATABASE_URL securely to the deliberately selected database.
+npm run operator:provision -- --user USER_UUID --institution INSTITUTION_UUID --role organizer --status active --operator "Operator name" --reason "Approved institution organizer"
+# Use --role student for ordinary membership, --status revoked to revoke,
+# and optional --expires ISO_TIMESTAMP for a time-limited grant.
+```
+
+The private SQL function records grants/revocations in `audit_log`. Every action
+requires a backing Auth session and current active membership; metadata/email
+domains never grant authority. Institution and organizer IDs are server-derived.
+Booking, cancellation and capacity/state changes serialize on the event row.
+Successful request UUIDs are remembered, so retries cannot take extra seats or
+resurrect a cancelled registration. Cancellation requires active membership and
+is allowed until the event starts; rebooking uses a new request/reference and
+retains cancelled history. Organizer cancellation cancels all confirmed bookings.
+Availability refreshes on navigation or the refresh buttons; booking always
+rechecks capacity server-side. References do not verify admission. QR check-in,
+waitlists and notifications remain future work.
+
+Run `npm run test:db`, `npm run test:db:concurrency`, `npm run test:integration`
+and `npm run test:e2e:integration` against the isolated stack. CI runs these with
+real Auth/PostgREST and separate browser contexts. Ordinary browser regressions
+use fixture HTTP for Auth; screenshot capture is opt-in and disabled by default.
 
 ## Registration and validation
 
@@ -161,7 +219,7 @@ npm run build
 npm run preview
 ```
 
-The existing demo URL is linked at the top of this README. This Phase 5 PR does not migrate the hosted database or deploy the account changes automatically.
+The existing demo URL is linked at the top of this README. These changes do not migrate the hosted database or deploy backend changes automatically.
 
 ## Practical Demonstration Guide
 
@@ -181,9 +239,9 @@ real versus mocked test coverage, and database CI evidence.
 
 ## Current limitations
 
-- Student login/signup requires a configured Supabase project and email delivery settings. Event bookings still have no shared backend, payments, booking emails, or external ticket verification. Organizer studio remains an open local demo and grants no database permissions.
-- Demo records belong to the browser profile and origin where they were created; they do not synchronize across users or devices. Use fictional details in demo forms. Real student profiles persist separately in PostgreSQL with own-only access.
-- Tabs on the same origin receive storage updates, but concurrent writes are last-write-wins. Capacity is not a shared, transactional reservation system.
+- Real accounts/events/bookings require a configured, migrated Supabase project and trusted institutional provisioning. Demo routes remain browser-local. Payments, booking emails and security-verifiable admission/QR check-in are not implemented.
+- Demo records belong to the browser profile and origin where they were created; they do not synchronize across users or devices. Use fictional details in demo forms. Real student profiles and campus bookings persist separately in PostgreSQL with own-only access.
+- Tabs on the same origin receive storage updates, but concurrent writes are last-write-wins. This limitation applies to the demo; `/campus` allocates seats transactionally in PostgreSQL.
 - Clearing browser storage removes demo records (not PostgreSQL profiles). If storage is unavailable, the app displays a notice and changes last only for the current session.
 - Persisted events eventually become past events. Reset the demo to generate new upcoming dates.
 - Poster themes use fixed artwork and lettering. Custom event titles appear separately in the interface and pass. The pass barcode is decorative and cannot verify entry.

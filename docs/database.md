@@ -28,14 +28,12 @@ Auth-user deletion cascades personal profiles and memberships. An institution
 with memberships cannot be deleted accidentally. Membership revocation/deletion
 and institution deactivation clear the profile association, retaining the
 personal profile. Expiry is checked against database time on every account read
-and save; saving drops an expired association. A time-expired membership may
-retain its stored PRN reservation until a save or administrative reconciliation.
+and save; saving drops an expired association. Phase 6 reconciles expired associations before a new profile/privileged operator claim, so an inactive student cannot block reassignment of that institutional PRN.
 **Future authorization must check current membership status, expiry and active
 institution, never a stored profile association alone.**
 
 Only a user lookup, institution lookup, active-membership uniqueness and the
-required PK/unique/FK-supporting indexes are added. No real events or booking
-schema is introduced.
+required PK/unique/FK-supporting indexes are added. Phase 6 adds `events`, `bookings`, a private `booking_requests` idempotency ledger and an operator-only `audit_log` through forward migrations. Events expose eligible institution metadata; `own_bookings` and `eligible_event_metadata` enforce private booking and event reads. All client mutations use restricted authenticated RPCs, including event create/edit/status, atomic booking/cancellation and privacy-limited attendees.
 
 ## RLS and function boundary
 
@@ -78,7 +76,7 @@ another student's PRN, identity or constraint details.
 
 ## Trusted memberships and roles
 
-There is no self-enrollment or administrative provisioning UI/API in this phase.
+There is no self-enrollment or administrative dashboard. Phase 6 provides the private operator-only `campuspass_private.provision_membership` function and `npm run operator:provision` workflow documented in the README.
 Students see **Enrollment unverified** unless a trusted operator has provisioned
 membership. Pending, revoked, expired and inactive states do not become approved
 because a student enters a college email or PRN.
@@ -86,9 +84,7 @@ because a student enters a college email or PRN.
 Only trusted database operators/backend service credentials can write
 institutions or memberships. Service credentials must never be placed in Vite
 variables or the browser. The future privileged role enum is present, but a
-`privileged_roles_unavailable` constraint permits **student only**, even through
-the service API. Enabling organizer/admin roles requires a reviewed migration
-and an authenticated, authorized administrative workflow. User metadata and the
+Phase 6 `administrator_role_unavailable` constraint permits **student and organizer only**. Organizer grants require the trusted database operator pathway and are audited. The private provisioning function is not executable by anonymous/authenticated/service API roles; a DBA must explicitly authorize any dedicated operator role. User metadata and the
 open Organizer demo confer no database privileges.
 
 ## Reproduce the isolated stack
@@ -189,8 +185,5 @@ modify the existing hosted Supabase project or live Vercel deployment.
   PG checks do not substitute for that job. See [Phase 5 verification](phase-5-verification.md)
   for observed results and evidence.
 
-Phase 6 needs authenticated administrative provisioning with audit history,
-reviewed organizer authorization, institutional PRN reconciliation, real event
-publishing, transactional seat inventory and bookings, and server-verifiable
-check-in/QR operations. OAuth, password recovery, data export/deletion UI,
+Phase 6 implements trusted operator provisioning/audit, current organizer authorization, expired PRN reconciliation, event publishing and transactional bookings. Server-verifiable check-in/QR operations remain future work. OAuth, password recovery, data export/deletion UI,
 production monitoring/backups and broader browser/device testing also remain.

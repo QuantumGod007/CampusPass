@@ -88,9 +88,10 @@ for (const width of [1440, 768, 390, 320]) {
 
     await page.evaluate(() => document.fonts.ready);
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.screenshot({
-      path: testInfo.outputPath("calendar-pass.png"),
-      fullPage: true,
-    });
+    if (process.env.CAPTURE_SCREENSHOTS === "true")
+      await page.screenshot({
+        path: testInfo.outputPath("calendar-pass.png"),
+        fullPage: true,
+      });
   });
 }
