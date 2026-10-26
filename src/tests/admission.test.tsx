@@ -152,6 +152,21 @@ describe("admission UI with mocked repository (security proven separately agains
     await act(async () => vi.advanceTimersByTimeAsync(91000));
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
   });
+  it("hides an issued QR as soon as a refresh reports revoked eligibility", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    pass();
+    await screen.findByRole("button", { name: "Show entry pass" });
+    fireEvent.click(screen.getByRole("button", { name: "Show entry pass" }));
+    await screen.findByRole("img");
+    mocks.passStatus.mockResolvedValue({ ...status(), eligible: false });
+    await act(async () => vi.advanceTimersByTimeAsync(5100));
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "Regenerate entry pass" }),
+      ).toBeDisabled(),
+    );
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+  });
   it("never renders a late credential after an account switch", async () => {
     let resolve!: (value: ReturnType<typeof issued>) => void;
     mocks.issuePass.mockReturnValue(

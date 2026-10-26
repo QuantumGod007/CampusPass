@@ -362,7 +362,7 @@ try {
     ).error,
   );
   await pool.query(
-    "insert into public.admission_rate_limits(actor_id,operation,minute,attempts) values($1,'scan',date_trunc('minute',clock_timestamp()),120) on conflict(actor_id,operation,minute) do update set attempts=120",
+    "insert into public.admission_rate_limits(actor_id,operation,minute,attempts) select $1,'scan',date_trunc('minute',statement_timestamp())+n*interval '1 minute',120 from generate_series(0,1) n on conflict(actor_id,operation,minute) do update set attempts=120",
     [organizer.id],
   );
   equal((await scan(revokedEvent, rt.token)).outcome, "rate_limited");

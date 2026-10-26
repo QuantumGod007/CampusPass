@@ -116,6 +116,8 @@ function EntryPass({ bookingId }: { bookingId: string }) {
   const status = resource.data;
   const visible =
     pass &&
+    resource.status === "ready" &&
+    status?.eligible &&
     !status?.checked_in_at &&
     navigator.onLine &&
     !document.hidden &&
