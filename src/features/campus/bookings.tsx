@@ -1,3 +1,4 @@
+import { CampusParticipationPanel } from "./participation";
 import { CampusEntryPass } from "./admission";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -131,6 +132,11 @@ function BookingWorkspace({ id }: { id?: string }) {
                 )}
               </div>
               <div className="booking-actions">
+                <Button asChild variant="outline">
+                  <Link to={`/campus/bookings/${booking.id}/participation`}>
+                    Attendance & participation
+                  </Link>
+                </Button>
                 {!id && (
                   <Button asChild variant="outline">
                     <Link to={`/campus/bookings/${booking.id}`}>
@@ -166,7 +172,12 @@ function BookingWorkspace({ id }: { id?: string }) {
           }
         />
       )}
-      {id && results?.[0] && <CampusEntryPass bookingId={id} />}
+      {id && results?.[0] && (
+        <>
+          <CampusEntryPass bookingId={id} />
+          <CampusParticipationPanel bookingId={id} compact />
+        </>
+      )}
       <p className="subtle-notice">
         Cancellation is allowed until the event starts and requires active
         membership. Rebooking creates a new reference if a seat remains.

@@ -236,6 +236,39 @@ describe("typed campus repository with mocked HTTP (not database security proof)
       repository.notifications(authSession().user.id),
     ).rejects.toMatchObject({ code: "validation" });
   });
+  it("never fetches a private report using another verified account", async () => {
+    const transport = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(
+        response(authSession("00000000-0000-4000-8000-000000000002").user),
+      );
+    const repository = connect(transport);
+    await expect(
+      repository.startReport(
+        authSession().user.id,
+        eventFixture().id,
+        crypto.randomUUID(),
+      ),
+    ).rejects.toMatchObject({ code: "42501" });
+    expect(transport).toHaveBeenCalledTimes(1);
+  });
+  it("does not accept participation data for a different booking", async () => {
+    const repository = connect(async (url) =>
+      response(
+        String(url).includes("/user")
+          ? authSession().user
+          : {
+              booking_id: crypto.randomUUID(),
+              checked_in_at: null,
+              reason: "not_checked_in",
+              record: null,
+            },
+      ),
+    );
+    await expect(
+      repository.participation(authSession().user.id, bookingFixture().id),
+    ).rejects.toMatchObject({ code: "validation" });
+  });
   it.each([
     "P1002",
     "P1003",

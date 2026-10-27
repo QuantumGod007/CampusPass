@@ -33,10 +33,15 @@ export async function admissionFixture({ userCount = 4 } = {}) {
       c.release();
     }
   }
-  async function event(owner = users[0]) {
+  async function event(
+    owner = users[0],
+    startsInSeconds = 600,
+    durationSeconds = 6600,
+  ) {
     const e = await as(
       owner,
-      "select public.create_campus_event('Admission Test Workshop','An isolated event used only for genuine database admission tests.','Workshops','Test hall',clock_timestamp()+interval '10 minutes',clock_timestamp()+interval '2 hours',10,'build') result",
+      "select public.create_campus_event('Admission Test Workshop','An isolated event used only for genuine database admission tests.','Workshops','Test hall',clock_timestamp()+$1*interval '1 second',clock_timestamp()+($1+$2)*interval '1 second',10,'build') result",
+      [startsInSeconds, durationSeconds],
     );
     events.push(e.id);
     return as(

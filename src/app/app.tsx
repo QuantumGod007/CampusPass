@@ -83,6 +83,20 @@ const router = createBrowserRouter([
             }),
           },
           {
+            path: "bookings/:bookingId/participation",
+            lazy: async () => ({
+              Component: (await import("../features/campus/participation"))
+                .CampusParticipation,
+            }),
+          },
+          {
+            path: "organizer/:eventId/analytics",
+            lazy: async () => ({
+              Component: (await import("../features/campus/analytics"))
+                .CampusAnalytics,
+            }),
+          },
+          {
             path: "notifications",
             lazy: async () => ({
               Component: (await import("../features/campus/notifications"))

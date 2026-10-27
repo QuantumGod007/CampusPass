@@ -384,6 +384,11 @@ export function CampusOrganizer() {
                   <td>
                     <div className="table-actions">
                       <Button asChild variant="outline" size="sm">
+                        <Link to={`/campus/organizer/${event.id}/analytics`}>
+                          View analytics
+                        </Link>
+                      </Button>
+                      <Button asChild variant="outline" size="sm">
                         <Link to={`/campus/organizer/${event.id}/check-in`}>
                           Check in
                         </Link>
